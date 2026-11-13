@@ -46,10 +46,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.4 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.5 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.4`.
+Check: `cat forge/engine/VERSION` prints `0.1.5`.
 
 ## 3. Build
 
@@ -62,8 +62,8 @@ just forge render       # writes the bin trees under home/
 
 The engine renders into `home/claude/{skills,agents,tools}` inside the descendant and
 never writes outside it. The harness reads `~/.claude/{skills,agents,tools}`. One
-symlink per directory connects them. Do it for `skills` and `agents`; a fresh descendant
-has no `home/claude/tools`, so skip `tools` unless that directory exists. For each:
+symlink per directory connects them, three in all: `skills`, `agents`, `tools` (render
+creates all three roots, empty or not). For each:
 
 - `~/.claude/<dir>` does not exist → `ln -s "$PWD/home/claude/<dir>" ~/.claude/<dir>`
 - it is already a symlink → read its target, show the person, ask before repointing
@@ -81,7 +81,8 @@ just forge render --check
 
 Pass looks like: every row's LIVE column says `ok`, and the gate prints
 `N/N elections render byte-identical to the live bin trees`. Report both outputs, the
-OS and package manager you used, and anything you installed. Then tell the person:
+OS and package manager you used, and anything you installed. The scaffold is
+uncommitted; offer to commit it (`git add -A && git commit -m "pagma: descendant"`). Then tell the person:
 a new session will have `/hello`, and the authoring loop is
 
 ```bash

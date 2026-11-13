@@ -63,6 +63,6 @@ cat <<MSG
 
 Next:
   just forge status                       the resolution table
-  ln -s $ROOT/home/claude/skills ~/.claude/skills   point the harness at the bin trees (also agents/)
+  ln -s $ROOT/home/claude/skills ~/.claude/skills   point the harness at the bin trees (also agents/ and tools/)
   cp -R forge/skills/global/hello/v1.0.0 forge/skills/global/<name>/v1.0.0   author, then elect-exact
 MSG

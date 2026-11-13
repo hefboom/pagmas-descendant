@@ -1,5 +1,5 @@
 {
-  "engine": "v0.1.4",
+  "engine": "v0.1.5",
   "harnesses": {
     "claude-code": {
       "roots": {
@@ -26,6 +26,9 @@
           }
         ]
       },
+      "toolsRoot": "home/claude/tools",
+      "toolsOpt": "~/.claude/tools",
+      "tools": {},
       "agentsRoot": "home/claude/agents",
       "agents": {
         "shim": {

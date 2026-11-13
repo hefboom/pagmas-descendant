@@ -892,6 +892,7 @@ function render(outPrefix: string | null, collect = false): RenderResult {
   // empty ones so link.sh can bootstrap a freshly declared scope.
   for (const h of Object.values(manifest.harnesses)) {
     for (const root of Object.values(h.roots)) fs.mkdirSync(path.join(base, root), { recursive: true });
+    if (h.toolsRoot) fs.mkdirSync(path.join(base, h.toolsRoot), { recursive: true });
     if (h.agentsRoot) fs.mkdirSync(path.join(base, h.agentsRoot), { recursive: true });
   }
   const errors = new Map<string, string>();
