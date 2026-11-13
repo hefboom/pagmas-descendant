@@ -1,5 +1,5 @@
 {
-  "engine": "v0.1.18",
+  "engine": "v0.1.19",
   "harnesses": {
     "claude-code": {
       "roots": {

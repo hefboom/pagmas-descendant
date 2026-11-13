@@ -49,6 +49,7 @@ together with the tool. A `dep` line carries the command that undoes it:
 | dnf | `dnf` | `sudo dnf remove <name>` |
 | the bun installer | `installer` | `rm -rf "$HOME/.bun"` |
 | the just installer | `installer` | `rm "$HOME/.local/bin/just"` |
+| winget (Windows) | `winget` | `winget uninstall --id <id> -e` |
 
 **A machine without one.** An install from before v0.1.11, or one done by hand, has no
 ledger. Build it by inspection with the same lines, and tell the person the list is
@@ -60,6 +61,90 @@ inferred, not recorded:
 - `descendant`: its path. Ask whether the directory was the person's before pagma (`in_place`, step 2); `true` if unsure.
 - `dep`: inspection cannot tell who installed a tool. Ask which of the six the person installed for pagma and record those, `via` read from where `command -v` finds the binary. No answer, no `dep` lines.
 - `line` with `by: bun`, only if bun got a `dep` line through its installer: the lines that installer leaves in a startup file (`grep -n '^# bun$\|BUN_INSTALL' ~/.bashrc ~/.bash_profile ~/.zshrc`).
+
+## On Windows
+
+Skip this section unless `uname -s` starts with `MINGW` or `MSYS`: Git Bash, the shell
+that comes with Git for Windows and the one Claude Code runs its commands in. Inside WSL
+you are on Linux and nothing here applies.
+
+New in v0.1.19. How links behave was measured on one Windows 11 machine; the rest is
+unproven, so report every mismatch. The steps and the ledger are the same, except:
+
+| Where | On Windows |
+|---|---|
+| Tools (step 1) | `winget`, one tool per command, `jq` first so the ledger can be written. No installer scripts, so the plan has no installer blocks. `git` is there already: Git Bash came with it |
+| `python3` | leave it alone. The name usually resolves to a Store alias that is not a real Python, and the setup check only notes a missing one. `just forge edges` does not run on Windows yet |
+| `PATH` | winget puts each tool on the user's `PATH` itself. The env file carries no `PATH` line, only `FORGE_ROOT` from step 2 |
+| Startup files | Git Bash reads one login file, the first that exists of `~/.bash_profile`, `~/.bash_login`, `~/.profile`. Add the line there, and create `~/.profile` if there is none. Then `~/.bashrc`, created if absent |
+| Links (step 4) | never `ln -s`: unless Developer Mode is on, Git Bash copies the directory, reports success, and the copy goes stale at the next render. Make a junction, the directory link that needs no admin rights |
+| An existing `~/.claude/<dir>` | a junction links a whole directory, never a single file. Linking per item works for skills, which are directories, and not for agents, which are files: offer to move those into the cellar, or to leave that directory unlinked |
+| `just forge link <repo>` | refuses on Windows for now. Make that link by hand with the junction command below |
+| By hand | the interactive verbs run in a Git Bash window, not in PowerShell or cmd |
+
+**Tools.** `winget show` is the read-first step here. A download host other than the
+project's own is a stop. A permission prompt from Windows is the person's to answer.
+
+| Tool | id | Download host, when this was written |
+|---|---|---|
+| jq | `jqlang.jq` | `github.com/jqlang/jq` |
+| bun | `Oven-sh.Bun` | `github.com/oven-sh/bun` |
+| just | `Casey.Just` | `github.com/casey/just` |
+| fzf | `junegunn.fzf` | `github.com/junegunn/fzf` |
+
+```bash
+winget show    --id jqlang.jq -e --source winget --accept-source-agreements
+winget install --id jqlang.jq -e --source winget --accept-source-agreements --accept-package-agreements
+```
+
+The `dep` line records `via` as `winget` and `remove` as `winget uninstall --id <id> -e`.
+
+A program sees the new `PATH` only if it started after winget ran, and your session
+started before. Until the person restarts it from a new terminal, begin each later
+command with this line. It also replaces the fresh-shell check of step 1, which cannot
+pass before a restart because a child shell inherits the session's old `PATH`:
+
+```bash
+export PATH="$PATH:$(cygpath -u -p "$(powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('Path','User')" | tr -d '\r')")";
+```
+
+After step 2, `bash -lc 'echo "$FORGE_ROOT"'` prints the descendant's path.
+
+**Links.** One junction per directory. The paths travel as environment variables, so a
+space in one needs no quoting:
+
+```bash
+PAGMA_LINK=$(cygpath -w "$HOME/.claude/skills") PAGMA_TARGET=$(cygpath -w "$PWD/home/claude/skills") \
+  powershell -NoProfile -Command 'New-Item -ItemType Junction -Path $env:PAGMA_LINK -Target $env:PAGMA_TARGET | Out-Null'
+readlink "$HOME/.claude/skills"
+```
+
+Git Bash sees a junction as a symlink: `[ -L ]` is true, `readlink` prints the target,
+and a plain `rm` removes the link and leaves the target's contents where they are. So the
+step 4 check, the `symlink` ledger line and `UNINSTALL.md` work unchanged. Write the
+ledger line's `target` from what `readlink` printed, so uninstall compares like with
+like. Never `rm -r` a junction.
+
+**The plan.** Same labels, same order, these lines differ:
+
+```text
+Machine
+  system     Windows 11, Git Bash, winget
+
+Tools to install
+  jq         edits the manifest   winget jqlang.jq       I run it; if refused, you run it
+
+winget packages: shown, match the baseline
+  jq         from github.com/jqlang/jq
+
+Files pagma writes
+  ~/.config/pagma/env             new: FORGE_ROOT
+  ~/.profile                      new file, 1 line
+  ~/.bashrc                       new file, 1 line
+
+Links
+  ~/.claude/skills                junction to ~/prompts/home/claude/skills
+```
 
 ## Before you change anything
 
@@ -152,7 +237,7 @@ Why each piece is there. Explain from this, not from memory:
 | `just` | the command runner: every verb (`just forge render`, `status`, `elect-exact`) is a recipe in the engine's justfile, which needs 1.31 for its syntax | no verbs |
 | `jq` | reads and edits the manifest `forge/elections.json` inside the verbs, and writes the ledger | no election can change |
 | `fzf` | the pickers in the interactive verbs (`view`, `elect`, `move`, `retire`, `discover`). Each is the hand-operated twin of a verb the agent runs (`show`, `elect-exact`, `move-exact`, …): the same engine, a picker in place of arguments. pagma is built to be driven by agents, and fzf is for the person: doing a step by hand once shows them what their agent can do | the agent's `-exact` verbs still work; the person loses the way to see and try them. Recommended, and the setup check asks for it |
-| `python3` | one read-only report, `just forge edges` | only that report stops. The setup check still asks for all six |
+| `python3` | one read-only report, `just forge edges` | only that report stops; the setup check notes it and carries on |
 | `~/.config/pagma/env` | bun and just install outside the default `PATH`; this file puts them on it and records where the descendant is (`FORGE_ROOT`) | new shells find neither the tools nor the descendant |
 | the rc lines | one line per startup file that reads the env file; two files because login shells and the shells tools start read different ones | the env file is never read |
 | the ledger | the record uninstall walks, so removal is exact and can end on "nothing remains" | uninstall falls back to inspecting the machine |
@@ -183,7 +268,7 @@ manager:
 | macOS (Homebrew) | `brew install bun just jq fzf python3` |
 | Debian / Ubuntu | `sudo apt-get update && sudo apt-get install -y git jq fzf python3` then bun and just below |
 | Fedora | `sudo dnf install -y git jq fzf python3 just` then bun below; check the just version |
-| Windows | stop — use WSL2 and run this file inside it; native Windows is not supported |
+| Windows (Git Bash) | `winget`, one tool per command: § On Windows. Inside WSL2, use the Linux row |
 
 bun (when the package manager has no package for it) and just (when the package manager's
 is missing or below 1.31) come from their projects' installer scripts. Never pipe one into
@@ -281,10 +366,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.18 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.19 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.18`.
+Check: `cat forge/engine/VERSION` prints `0.1.19`.
 
 Now record the descendant's location: append `export FORGE_ROOT="<absolute path of the
 descendant>"` to `~/.config/pagma/env` (replace an existing `FORGE_ROOT` line), and export

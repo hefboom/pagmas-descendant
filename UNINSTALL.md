@@ -41,6 +41,10 @@ Ask, then `rm` the listed links (the links only, never `rm -r`). If an entry has
 else under `~/.claude` belongs to pagma. The next Claude Code session will no longer see
 the rendered skills and agents.
 
+On Windows the links are junctions (`INSTALL.md` § On Windows). `readlink` and a plain
+`rm` treat one as a symlink, and `rm` leaves the descendant's contents in place; `rm -r`
+may not. To point a link back, use the junction command there, not `ln -s`.
+
 ## 3. The shell file
 
 The `file` entry for `~/.config/pagma/env` and each `line` entry without a `by` field: the
@@ -75,6 +79,7 @@ one at a time:
    | `brew` | `brew uses --installed <name>` (what else needs it) |
    | `installer`, bun | `ls "$HOME/.bun/bin"` and `bun pm ls -g` (global packages live in the same tree) |
    | `installer`, just | nothing else; it is one binary |
+   | `winget` | `winget list --id <id> -e`, the id from the entry's `remove` command (one package; nothing else goes with it) |
 
 3. Ask yes or no for this one tool. The default is no: the person may use it for other
    things by now. For `git` and `python3`, say plainly that other software commonly
@@ -115,7 +120,7 @@ the directory. pagma's paths inside it:
 | `forge/engine/` | the engine mount | once |
 | `.claude/skills/pagma-{install,update,uninstall}/` | the three pointer skills | once |
 | `forge/elections.json`, `forge/skills/`, `forge/agents/`, `forge/tools/` | the cellar: the person's authored content | explicitly, naming it; keep unless they say remove |
-| `justfile`, `.gitignore`, `AGENTS.md` | shared files that may predate pagma | show pagma's lines in each, ask per file; remove those lines, or the file if nothing else is in it |
+| `justfile`, `.gitignore`, `.gitattributes`, `AGENTS.md` | shared files that may predate pagma | show pagma's lines in each, ask per file; remove those lines, or the file if nothing else is in it |
 
 Leave the result uncommitted and show `git status --short`, so the person reviews the
 removal and commits it themselves.

@@ -3,6 +3,13 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.19
+- Windows, natively, through Git Bash: `INSTALL.md` § On Windows. Tools come from winget, the three links are junctions (Git Bash's `ln -s` copies the directory unless Developer Mode is on), and the env file carries no `PATH` line. Measured on one Windows 11 machine: a junction reads as a symlink to `[ -L ]`, `readlink` and `rm`, so the ledger and `UNINSTALL.md` work unchanged. Everything else in that section is unproven until its first full run.
+- `.gitattributes` in the engine and in the rare book: text files check out with LF on every machine. Git for Windows converts to CRLF by default, which breaks the bash scripts.
+- `init.sh` notes a missing `python3` and carries on; only `just forge edges` needs it.
+- `just forge link <repo>` refuses on Windows until it makes junctions itself.
+- manifest: none.
+
 ## v0.1.18
 - `UNINSTALL.md`: the closing line checks its own result and prints "pagma: nothing remains on this machine". An agent standing in the descendant hands that line to the person instead of deleting its own directory. Found live, on the first full uninstall: the agent handed the line over, and the old line only printed "ledger closed".
 

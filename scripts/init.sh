@@ -21,12 +21,13 @@ else
 fi
 
 missing=()
-for t in bun just jq fzf python3; do command -v "$t" >/dev/null 2>&1 || missing+=("$t"); done
+for t in bun just jq fzf; do command -v "$t" >/dev/null 2>&1 || missing+=("$t"); done
 if (( ${#missing[@]} )); then
-  echo "forge init: missing prerequisites: ${missing[*]} (bun runs the renderer, just the verbs, jq the manifest edits, fzf the pickers, python3 the edge ledger)" >&2
+  echo "forge init: missing prerequisites: ${missing[*]} (bun runs the renderer, just the verbs, jq the manifest edits, fzf the pickers)" >&2
   echo "  install them, or hand INSTALL.md to a coding agent: $ENGINE/INSTALL.md" >&2
   exit 1
 fi
+command -v python3 >/dev/null 2>&1 || echo "forge init: python3 not found; only \`just forge edges\` needs it, the rest works" >&2
 
 just_floor=1.31.0
 just_have=$(just --version | awk '{print $2}')
@@ -63,7 +64,7 @@ cat <<MSG
 
 Next:
   just forge status                       the resolution table
-  ln -s $ROOT/home/claude/skills ~/.claude/skills   point the harness at the bin trees (also agents/ and tools/)
+  link ~/.claude/skills to $ROOT/home/claude/skills   so the harness reads the bin trees (also agents/ and tools/; INSTALL.md § 4)
   cp -R forge/skills/global/hello/v1.0.0 forge/skills/global/<name>/v1.0.0   author, then elect-exact
   export FORGE_ROOT=$ROOT                  in ~/.config/pagma/env, so skills find this descendant from any cwd (INSTALL.md § 2)
 MSG
