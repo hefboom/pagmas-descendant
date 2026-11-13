@@ -3,6 +3,9 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.18
+- `UNINSTALL.md`: the closing line checks its own result and prints "pagma: nothing remains on this machine". An agent standing in the descendant hands that line to the person instead of deleting its own directory. Found live, on the first full uninstall: the agent handed the line over, and the old line only printed "ledger closed".
+
 ## v0.1.17
 - The descendant is explained before it is named: the hub repo every skill and agent is managed from, global or aimed at one repo. The noun is the only coined word; setting one up has no special verb. In `INSTALL.md` (vocabulary, plan, explanations) and the README.
 - fzf is for the person: the interactive verbs are the hand-operated twins of the `-exact` verbs an agent runs. The README pairs them, and the install ends by recommending one pass by hand.
