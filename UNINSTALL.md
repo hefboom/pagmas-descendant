@@ -131,15 +131,16 @@ together with its `by` entries. If
 that leaves entries (changed, or the person stopped partway), rewrite the ledger to those
 lines and say that a later uninstall finishes the job.
 
-If it leaves none, close with one last command, run from `$HOME` as a single line. Include
-the `rm -rf` only on the stage 6 yes:
+If it leaves none, close with one last line. Include the `rm -rf` and its check only on the
+stage 6 yes. The line checks its own result, so whoever runs it sees the outcome:
 
 ```bash
-cd "$HOME" && rm -rf "<descendant path>" && rm -f "$HOME/.config/pagma/ledger.jsonl" && rmdir "$HOME/.config/pagma" && echo "pagma: ledger closed"
+cd "$HOME" && rm -rf "<descendant path>" && rm -f "$HOME/.config/pagma/ledger.jsonl" && rmdir "$HOME/.config/pagma" && [ ! -e "<descendant path>" ] && [ ! -e "$HOME/.config/pagma" ] && echo "pagma: nothing remains on this machine"
 ```
 
-Your session's own directory goes with the descendant, so nothing may need to run after
-this line. If your harness refuses it, give the line to the person instead.
+If your session is standing in the descendant, which it normally is, do not run this
+yourself: it deletes the directory you are working in. Give the line to the person, and in
+the report mark the descendant and the ledger as closed by that line. Otherwise run it.
 
 ## 8. Report
 
@@ -147,6 +148,8 @@ One row per ledger entry: what it was, where, and its final state. Then:
 
 - If every row is `removed` or `already gone`, say so in these words: **nothing pagma
   created remains on this machine.**
+- If the closing line is the person's to run, say that the descendant and the ledger are
+  all that is left, and that the line prints that same sentence when it has succeeded.
 - Otherwise list what remains and why (kept by the person, or changed since install).
 
 Then what was never pagma's, so the person is not left wondering: tools that were on the
