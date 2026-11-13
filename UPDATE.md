@@ -55,7 +55,8 @@ uninstall knows about it.
 
 Then every `bundle:` line from step 2. It names starter skills and agents that are new in
 the template, and it is an offer: list them, ask, and add only what the person wants. A
-name already in the descendant's cellar is skipped. For each yes, copy it out of the
+name already in the descendant's cellar is skipped. Items joined by "with" go together
+or not at all: a skill does not render without the tool it declares. For each yes, copy it out of the
 template and take its election from the template's manifest:
 
 ```bash
@@ -66,6 +67,9 @@ jq --slurpfile t "$T/elections.json" --arg n <name> '.harnesses["claude-code"].e
 # an agent
 cp -R "$T/agents/<name>" forge/agents/
 jq --slurpfile t "$T/elections.json" --arg n <name> '.harnesses["claude-code"].agents[$n] = $t[0].harnesses["claude-code"].agents[$n]' "$M" > "$M.tmp" && mv "$M.tmp" "$M"
+# a tool
+mkdir -p forge/tools && cp -R "$T/tools/<name>" forge/tools/
+jq --slurpfile t "$T/elections.json" --arg n <name> '.harnesses["claude-code"].tools[$n] = $t[0].harnesses["claude-code"].tools[$n]' "$M" > "$M.tmp" && mv "$M.tmp" "$M"
 # new variants of an agent the descendant already has: its own variants win
 jq --slurpfile t "$T/elections.json" --arg n <name> '.harnesses["claude-code"].agents[$n].variants = ($t[0].harnesses["claude-code"].agents[$n].variants + .harnesses["claude-code"].agents[$n].variants)' "$M" > "$M.tmp" && mv "$M.tmp" "$M"
 ```

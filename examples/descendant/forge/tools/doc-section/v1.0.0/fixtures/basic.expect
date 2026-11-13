@@ -1,0 +1,9 @@
+OUTLINE
+basic.md	basic-doc	1	6	245	Basic Doc
+basic.md	install-renderts	2	10	127	Install `render.ts`
+basic.md	sub-step	3	17	55	Sub step
+basic.md	add-a-new-version--promote	2	25	72	Add a new version / promote
+basic.md	ünïcode-heading	2	29	26	Ünïcode heading
+END
+EXTRACT install-renderts OK
+EXTRACT nope ERROR MISSING

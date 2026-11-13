@@ -246,10 +246,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.28 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.29 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.28`.
+Check: `cat forge/engine/VERSION` prints `0.1.29`.
 
 Now record the descendant's location: append `export FORGE_ROOT="<absolute path of the
 descendant>"` to `~/.config/pagma/env` (replace an existing `FORGE_ROOT` line), and export
@@ -310,8 +310,9 @@ started in a clone of the engine (the bootstrap row), say that the clone is now 
 since the descendant carries its own copy of the engine, and give the person the line to
 run after they open a session in the descendant: `rm -rf <path of the clone>`. Do not run
 it yourself; it is the directory your session is in. Then tell the person:
-a new session will have the starter set (`/hello`, `/systems-architect` and the six tier
-agents; `README.md` § Starter set says what each is for), and the authoring loop is
+a new session will have the starter set (`/hello`, `/prime-forge`, `/systems-architect`
+and the six tier agents; `README.md` § Starter set says what each is for). `/prime-forge`
+is the one to run first: it teaches their agent the forge. The authoring loop is
 
 ```bash
 cp -R forge/skills/global/hello/v1.0.0 forge/skills/global/<name>/v1.0.0

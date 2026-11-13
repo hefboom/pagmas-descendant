@@ -3,6 +3,12 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.29
+- New: `AUTHORING.md`, how the forge works once installed and how to write, version and release a skill in it. Its headings are addresses: skills cite them by section.
+- The starter set gains the `prime-forge` skill and the `doc-section` tool. `prime-forge` teaches a fresh agent the forge from any directory: it loads the sections of `AUTHORING.md` it cites through `doc-section`, the verbs from the justfile and the status table. It is the first use of the tools cellar in the template.
+- manifest: none.
+- bundle: skill `prime-forge` with tool `doc-section`.
+
 ## v0.1.28
 - The starter set grows. A fresh descendant now holds the `systems-architect` skill and all six tier agents: `lightweight`, `workhorse` and `sota`, each with a read-only `-ro` twin. Before, it held `hello` and two tier agents. `README.md` § Starter set says what each is for.
 - `UPDATE.md` offers new starter content to an existing descendant. A `bundle:` line names it, and nothing is added without a yes.
