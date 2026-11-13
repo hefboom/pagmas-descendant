@@ -3,6 +3,13 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.20
+- `render.ts` finds its own location with `fileURLToPath`. Found live, on the first Windows install: `new URL(import.meta.url).pathname` gives `/C:/…` there, and every render failed.
+- `INSTALL.md` § On Windows, after that install (Windows 11, gate 3/3). The `PATH` refresh reads the machine `PATH` as well as the user's, since fzf's package installs machine-wide. Ledger commands switch off Git Bash's path rewriting, which had turned `/c/…` into `C:/…` on the way into jq. The login-file rule is spelled out.
+- Step 4 covers two cases it had no words for: an empty real directory (removed, then linked), and a `~/.claude/skills` that holds the Claude app's `synced/` folder (left alone, skills linked one by one). `UNINSTALL.md` finds per-skill links by their target, so links made after the install are removed too.
+- The suggested descendant folder is `~/pagmas-descendant`; the template repo is now `hefboom/pagmas-descendant`.
+- manifest: none.
+
 ## v0.1.19
 - Windows, natively, through Git Bash: `INSTALL.md` § On Windows. Tools come from winget, the three links are junctions (Git Bash's `ln -s` copies the directory unless Developer Mode is on), and the env file carries no `PATH` line. Measured on one Windows 11 machine: a junction reads as a symlink to `[ -L ]`, `readlink` and `rm`, so the ledger and `UNINSTALL.md` work unchanged. Everything else in that section is unproven until its first full run.
 - `.gitattributes` in the engine and in the rare book: text files check out with LF on every machine. Git for Windows converts to CRLF by default, which breaks the bash scripts.
