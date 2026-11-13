@@ -87,7 +87,7 @@ Prerequisites: `bun`, `just`, `jq`, `fzf`, `python3`, `git` (per-OS commands in 
 
 ```bash
 mkdir my-prompts && cd my-prompts && git init && git commit --allow-empty -m init
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.18 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.19 --squash
 bash forge/engine/scripts/init.sh          # the rare book: manifest, cellar, justfile, first render
 just forge status                          # one row per election, LIVE column says ok
 ```
@@ -111,7 +111,8 @@ just forge render --check                                                   # dr
 Try it without a repo: `FORGE_ROOT=$PWD/examples/descendant just render --check` from
 this checkout renders the example in place.
 
-Supported: macOS and Linux. Windows through WSL2 until the shell layer is gone (v2).
+Supported: macOS and Linux. Windows natively through Git Bash is new in v0.1.19 and still
+being proven (`INSTALL.md` § On Windows); inside WSL2 it is the Linux install.
 
 ## Layout of a descendant
 

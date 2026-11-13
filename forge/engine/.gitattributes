@@ -1,0 +1,2 @@
+# The bash scripts and the justfile break on CRLF, and Git for Windows converts to it by default.
+* text=auto eol=lf

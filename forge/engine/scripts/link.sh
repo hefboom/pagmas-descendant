@@ -30,6 +30,15 @@ if [[ ! -d "$repo_dir" ]]; then
   exit 1
 fi
 
+# Git Bash on Windows: `ln -s` copies the directory instead of linking it, and the copy
+# goes stale at the next render. Refuse until this script makes junctions itself.
+case $(uname -s) in
+  MINGW* | MSYS*)
+    echo "just forge link does not run on Windows yet (ln -s copies there). Link by hand with a junction, INSTALL.md § On Windows: $repo_dir/.claude/skills -> $target" >&2
+    exit 1
+    ;;
+esac
+
 mode=$(jq -r --arg r "$repo" '.harnesses["claude-code"].linkModes[$r] // "tree"' elections.json)
 
 if [[ "$mode" == "per-skill" ]]; then
