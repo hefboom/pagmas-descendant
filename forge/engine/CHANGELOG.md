@@ -3,6 +3,10 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.21
+- `UNINSTALL.md` after the first Windows uninstall (every entry removed, closing line handed over). winget tools are checked with `winget list`: `command -v`, in a session older than the install, had reported all four as already gone. Junctions are removed with `rmdir`, named as the command; before, the file only warned against `rm -r`. A `~/.bun` left behind when bun goes through a package manager is offered for removal.
+- manifest: none.
+
 ## v0.1.20
 - `render.ts` finds its own location with `fileURLToPath`. Found live, on the first Windows install: `new URL(import.meta.url).pathname` gives `/C:/…` there, and every render failed.
 - `INSTALL.md` § On Windows, after that install (Windows 11, gate 3/3). The `PATH` refresh reads the machine `PATH` as well as the user's, since fzf's package installs machine-wide. Ledger commands switch off Git Bash's path rewriting, which had turned `/c/…` into `C:/…` on the way into jq. The login-file rule is spelled out.

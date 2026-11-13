@@ -46,9 +46,10 @@ Ask, then `rm` the listed links (the links only, never `rm -r`). If an entry has
 else under `~/.claude` belongs to pagma. The next Claude Code session will no longer see
 the rendered skills and agents.
 
-On Windows the links are junctions (`INSTALL.md` § On Windows). `readlink` and a plain
-`rm` treat one as a symlink, and `rm` leaves the descendant's contents in place; `rm -r`
-may not. To point a link back, use the junction command there, not `ln -s`.
+On Windows the links are junctions (`INSTALL.md` § On Windows). `readlink` reads one like
+a symlink. Remove each with `rmdir "<path>"`: it deletes the junction alone and cannot
+take the contents with it. Never `rm -r`. To point a link back, use the junction command
+there, not `ln -s`.
 
 ## 3. The shell file
 
@@ -74,7 +75,9 @@ Only the `dep` entries: tools that were missing before the install and that it a
 tool with no `dep` line was on the machine before pagma and is never offered. Take them
 one at a time:
 
-1. `command -v <name>`. If it no longer resolves: already gone.
+1. `command -v <name>`. If it no longer resolves: already gone. For a `winget` entry ask
+   winget instead, `winget list --id <id> -e`: a session started before the install has a
+   `PATH` that hides the tool, and `command -v` then calls an installed tool gone.
 2. Say what it is, and show what removing it would take along:
 
    | `via` | Look first |
@@ -95,6 +98,9 @@ one at a time:
    the person and continue once `command -v <name>` no longer resolves.
 5. Then remove the entries that carry `by: <name>`, which its installer left behind: lines
    with the stage 3 snippet, files with `rm`. On a no, they stay with the tool.
+6. bun removed through a package manager (`winget`, `brew`, `apt`) can leave `~/.bun`
+   behind: its own cache and global packages. If it is there, show it, ask, and
+   `rm -rf "$HOME/.bun"`.
 
 ## 5. The bootstrap clone
 
@@ -133,7 +139,8 @@ removal and commits it themselves.
 ## 7. Close the ledger
 
 Check every entry once more against its final state: links absent, env file absent, rc
-lines at count 0, removed tools no longer resolving, removed directories absent.
+lines at count 0, removed tools no longer resolving (winget: no longer listed), removed
+directories absent.
 
 The ledger ends holding exactly what pagma still has on the machine. A dependency or a
 descendant the person chose to keep is theirs from now on and comes off the list, a tool
