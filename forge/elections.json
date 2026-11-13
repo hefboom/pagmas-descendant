@@ -1,0 +1,53 @@
+{
+  "engine": "v0.1.1",
+  "harnesses": {
+    "claude-code": {
+      "roots": {
+        "global": "home/claude/skills"
+      },
+      "defaultTier": "workhorse",
+      "tiers": {
+        "lightweight": [
+          {
+            "model": "haiku",
+            "effort": "high"
+          }
+        ],
+        "workhorse": [
+          {
+            "model": "sonnet",
+            "effort": "high"
+          }
+        ],
+        "sota": [
+          {
+            "model": "opus",
+            "effort": "high"
+          }
+        ]
+      },
+      "agentsRoot": "home/claude/agents",
+      "agents": {
+        "shim": {
+          "version": "v1.0.0",
+          "variants": {
+            "workhorse": {
+              "tier": "workhorse"
+            },
+            "workhorse-ro": {
+              "tier": "workhorse",
+              "disallowedTools": "Edit, Write, NotebookEdit"
+            }
+          }
+        }
+      },
+      "elections": {
+        "global": {
+          "hello": {
+            "version": "v1.0.0"
+          }
+        }
+      }
+    }
+  }
+}
