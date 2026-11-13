@@ -1,4 +1,4 @@
-# pagma-descendant
+# pagmas-descendant
 
 A template for a [pagma](https://github.com/hefboom/pagma) descendant: your own
 versioned cellar of agent skills and subagents, with the engine already mounted at
