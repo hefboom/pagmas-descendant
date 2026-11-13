@@ -3,6 +3,9 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.15
+- The plan ends with what happens on "go ahead": at most five plain sentences, in order — what the agent runs, where it will hand the person a command, what the machine has at the end, and that `/pagma-uninstall` takes all of it back.
+
 ## v0.1.14
 - Installer scripts are read before they run. `INSTALL.md` fetches the bun and just installers to a file, answers four questions from the script itself (what it downloads and from where, where it writes, whether it edits startup files, whether it wants root), puts the answers in the plan, and runs that same file. Nothing is piped into a shell unread.
 - What an installer leaves behind goes on the ledger with `by: <tool>` and is removed with that tool. Found live: the bun installer appended three lines to `~/.bashrc` that uninstall would have left.
