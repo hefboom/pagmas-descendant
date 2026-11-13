@@ -5,9 +5,26 @@ tools kept as **immutable versions in a cellar**, **elected** through one manife
 **rendered** into the directories each AI harness actually loads from. The engine
 behind a private dotfiles repo, extracted so the same mechanism can run anywhere.
 
-Named for the blacksmith in *Overgeared*. A repo that consumes the engine is a
-*descendant*; the scaffold that makes one is the *rare book*. The verbs stay plain:
-`just forge render`.
+Named for the blacksmith in *Overgeared*. pagma needs one repository to be the hub that
+every skill and agent is managed from: it holds each version you write and the manifest of
+which is live, and from it a skill is global or aimed at a single repo. A repo set up as
+that hub, new or existing, is a *descendant*: it carries the engine inside and takes its
+updates from it. The scaffold that makes one is the *rare book*. Those two nouns are the
+whole borrowed vocabulary; the verbs stay plain: `just forge render`.
+
+**Built for agents, learned by hand.** Every change has two verbs over one engine: an
+`-exact` form that takes arguments, which is what an agent runs, and an interactive twin
+with fzf pickers, which is for you.
+
+| By hand | What an agent runs | Does |
+|---|---|---|
+| `just forge view` | `just forge show <label>` | read one election: version, tier, edges, live state |
+| `just forge elect` | `just forge elect-exact <label> <version>` | make a version live |
+| `just forge move` | `just forge move-exact <label> <scope>` | move a skill between scopes |
+| `just forge retire` | `just forge retire-exact <label>` | take a skill out of service, keep its versions |
+
+Drive it by hand once before you delegate it. You will know what your agent can do
+because you have done it yourself.
 
 ## The mechanism in one screen
 
@@ -70,7 +87,7 @@ Prerequisites: `bun`, `just`, `jq`, `fzf`, `python3`, `git` (per-OS commands in 
 
 ```bash
 mkdir my-prompts && cd my-prompts && git init && git commit --allow-empty -m init
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.16 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.17 --squash
 bash forge/engine/scripts/init.sh          # the rare book: manifest, cellar, justfile, first render
 just forge status                          # one row per election, LIVE column says ok
 ```
