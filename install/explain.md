@@ -38,7 +38,7 @@ Explain from these, not from memory.
 - without it: no install and no update
 
 **bun**
-- runs the renderer: the program that turns the manifest into the skill and agent files your harness reads
+- runs the renderer: the program that turns the manifest (the list of what is live) into the skill and agent files your harness reads
 - without it: nothing renders
 
 **just**
@@ -81,6 +81,12 @@ Explain from these, not from memory.
 - holds every version you write, the manifest of which version is live, and the engine mounted inside
 - a skill made live there is global, or aimed at one repo
 - without it: nowhere for your skills to live, and nothing to choose from
+
+**the manifest**
+- one file in your hub, `forge/elections.json`: which version of each skill, agent and tool is live, and where (every session, or one repo)
+- rendering writes exactly that list into the folders your harness reads; what is not on the list is not there
+- you change it with a command (`just forge elect-exact <skill> <version>`); a change that would not render is refused and the file stays as it was
+- without it: nothing says what should be live, so nothing renders
 
 **the three links**
 - your harness reads `~/.claude/…`; the engine renders inside the hub
