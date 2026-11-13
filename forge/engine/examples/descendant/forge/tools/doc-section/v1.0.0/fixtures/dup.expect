@@ -1,0 +1,8 @@
+OUTLINE
+dup.md	dup	1	1	44	Dup
+dup.md	history	2	3	14	History
+dup.md	other	2	6	10	Other
+dup.md	history	2	8	13	History
+END
+EXTRACT history ERROR DUPLICATE
+EXTRACT other OK

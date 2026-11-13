@@ -87,7 +87,7 @@ Prerequisites: `bun`, `just`, `jq`, `fzf`, `python3`, `git` (per-OS commands in 
 
 ```bash
 mkdir pagmas-descendant && cd pagmas-descendant && git init && git commit --allow-empty -m init
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.28 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.29 --squash
 bash forge/engine/scripts/init.sh          # the rare book: manifest, cellar, justfile, first render
 just forge status                          # one row per election, LIVE column says ok
 ```
@@ -122,6 +122,8 @@ version it, retire it.
 | Name | Kind | What it is for |
 |---|---|---|
 | `hello` | skill | the smoke test: one line that proves cellar, manifest and render work |
+| `prime-forge` | skill | teaches a fresh agent how the forge works and what is live, so it can write, version and elect skills for you. Run it first, then ask your agent anything about the forge |
+| `doc-section` | tool | reads one section of a markdown file by its heading. `prime-forge` uses it to load only the parts of `AUTHORING.md` it needs |
 | `systems-architect` | skill | takes a system, a document or a design apart into its working parts, how they act on each other, and one governing analogy. Tag the topic `understand`, `debug` or `audit`. Runs on the top tier. To run it in a subagent, spawn `sota` and name the skill |
 | `lightweight`, `workhorse`, `sota` | agents | nothing but a model tier: spawn one to run a prompt, or a named skill, on that tier. All three are one definition, `shim`, rendered under three names |
 | `lightweight-ro`, `workhorse-ro`, `sota-ro` | agents | the same three with the editing tools removed: they report and never change files |
@@ -184,6 +186,8 @@ suite-publishing pipeline coupled to the author's suite and are not yet general.
 
 - [`INSTALL.md`](./INSTALL.md), [`UPDATE.md`](./UPDATE.md), [`UNINSTALL.md`](./UNINSTALL.md)
   — the three agent-facing procedures; [`CHANGELOG.md`](./CHANGELOG.md) — one entry per tag.
+- [`AUTHORING.md`](./AUTHORING.md) — how the forge works once installed, and how to
+  write, version and release a skill in it. What `prime-forge` reads.
 - [`scripts/README.md`](./scripts/README.md) — every script, the manifest contract,
   multicast scopes, link modes.
 - [`examples/descendant/`](./examples/descendant/) — the rare book, readable in two minutes.

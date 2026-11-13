@@ -1,5 +1,5 @@
 {
-  "engine": "v0.1.28",
+  "engine": "v0.1.29",
   "harnesses": {
     "claude-code": {
       "roots": {
@@ -33,7 +33,11 @@
       },
       "toolsRoot": "home/claude/tools",
       "toolsOpt": "~/.claude/tools",
-      "tools": {},
+      "tools": {
+        "doc-section": {
+          "version": "v1.0.0"
+        }
+      },
       "agentsRoot": "home/claude/agents",
       "agents": {
         "shim": {
@@ -69,6 +73,9 @@
             "version": "v1.0.0"
           },
           "systems-architect": {
+            "version": "v1.0.0"
+          },
+          "prime-forge": {
             "version": "v1.0.0"
           }
         }
