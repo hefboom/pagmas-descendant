@@ -31,7 +31,9 @@ Anything not on the ledger is not pagma's. Do not offer to remove it.
 
 ## 2. The harness links
 
-For each `symlink` entry, `readlink` its `path`:
+For each `symlink` entry, `readlink` its `path`. One of them may be the descendant's own
+`.claude/skills`, which this very procedure was loaded through: removing it is fine, the
+text is already in your context.
 
 - it prints the entry's `target` → pagma's link, list it for removal
 - it is a real directory, or a link pointing elsewhere → changed, left; say so
@@ -152,9 +154,9 @@ the directory. pagma's paths inside it:
 
 | Path | What it is | Ask |
 |---|---|---|
-| `home/claude/{skills,agents,tools}`, `forge/scratch/` | rendered output, regenerable | once for the group |
+| `home/claude/{skills,agents,tools,repos}`, `forge/scratch/` | rendered output, regenerable | once for the group |
 | `forge/engine/` | the engine mount | once |
-| `.claude/skills/pagma-{install,update,uninstall}/` | the three pointer skills | once |
+| `.claude/commands/pagma-install.md` | the install command. An install from before v0.1.31 has `.claude/skills/pagma-{install,update,uninstall}/` instead | once |
 | `forge/elections.json`, `forge/skills/`, `forge/agents/`, `forge/tools/` | the cellar: the person's authored content | explicitly, naming it; keep unless they say remove |
 | `justfile`, `.gitignore`, `.gitattributes`, `AGENTS.md` | shared files that may predate pagma | show pagma's lines in each, ask per file; remove those lines, or the file if nothing else is in it |
 

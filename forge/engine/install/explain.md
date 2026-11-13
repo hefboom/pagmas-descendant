@@ -92,3 +92,8 @@ Explain from these, not from memory.
 - your harness reads `~/.claude/…`; the engine renders inside the hub
 - the links join the two
 - without them: the harness sees no rendered skills
+
+**the hub's own link**
+- `.claude/skills` inside the hub points at the skills rendered for the hub alone
+- that is where `/pagma-update` and `/pagma-uninstall` come from: they are skills in your cellar like any other, scoped to the hub
+- without it: those two are not slash commands when you open a session in the hub

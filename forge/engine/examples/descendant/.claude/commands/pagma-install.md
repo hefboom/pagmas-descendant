@@ -1,5 +1,4 @@
 ---
-name: pagma-install
 description: Set up this pagma descendant on this machine — install missing prerequisites, build the engine, render the bin trees, link the harness, verify. Use on a fresh clone or a new machine.
 allowed-tools: Read, Bash
 ---

@@ -15,7 +15,7 @@ fi
 repo=$1
 
 case "$repo" in
-global | dotfiles | keg-only | tools)
+global | hub | dotfiles | keg-only | tools)
   echo "\"$repo\" is a reserved scope name — not a repo target" >&2
   exit 1
   ;;

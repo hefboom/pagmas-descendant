@@ -14,7 +14,7 @@ repo=$1
 root=$(jq -r --arg r "$repo" '.harnesses["claude-code"].roots[$r] // empty' elections.json)
 if [[ -z "$root" ]]; then
   echo "no root for scope \"$repo\" in elections.json — declared repo roots:" >&2
-  jq -r '.harnesses["claude-code"].roots | to_entries[] | select(.key != "global" and .key != "dotfiles") | "  \(.key)"' elections.json >&2
+  jq -r '.harnesses["claude-code"].roots | to_entries[] | select(.key != "global" and .key != "hub" and .key != "dotfiles") | "  \(.key)"' elections.json >&2
   exit 1
 fi
 

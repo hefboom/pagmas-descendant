@@ -87,6 +87,10 @@ PAGMA_LINK=$(cygpath -w "$HOME/.claude/skills") PAGMA_TARGET=$(cygpath -w "$PWD/
 readlink "$HOME/.claude/skills"
 ```
 
+The descendant's own link, the fourth of step 4, is a junction as well: the same
+command with `PAGMA_LINK=$(cygpath -w "$PWD/.claude/skills")` and
+`PAGMA_TARGET=$(cygpath -w "$PWD/home/claude/repos/hub/skills")`, after `mkdir -p .claude`.
+
 Git Bash sees a junction as a symlink: `[ -L ]` is true, `readlink` prints the target,
 and `rmdir` or a plain `rm` removes the link and leaves the target's contents where they are. So the
 step 4 check, the `symlink` ledger line and `UNINSTALL.md` work unchanged. Write the
@@ -113,4 +117,5 @@ Files pagma writes
 
 Links
   ~/.claude/skills                junction to ~/pagmas-descendant/home/claude/skills
+  the hub's .claude/skills        junction to ~/pagmas-descendant/home/claude/repos/hub/skills
 ```

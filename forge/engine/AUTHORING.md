@@ -19,6 +19,7 @@ Every command runs from the descendant's root. From anywhere else it is
 | `forge/partials/{name}/v{X.Y.Z}/{name}.md` | shared text that render splices into skill bodies (optional) |
 | `forge/engine/` | pagma itself, a git subtree pinned to a tag. Never edited here |
 | `home/claude/{skills,agents,tools}/` | the rendered output the harness reads. Gitignored, rebuilt by render |
+| `home/claude/repos/{scope}/skills/` | the rendered output for one repo, or for the hub itself |
 | `forge/scratch/` | throwaway trees the checks render into. Gitignored |
 
 ## Pattern
@@ -59,6 +60,7 @@ models can be swapped in one place without touching a skill.
 | `lightweight` | Haiku, effort high |
 | `workhorse` | Sonnet, effort high |
 | `sota` | Opus, effort high |
+| `session` | no model at all: the skill runs on whatever the session is using |
 
 - No `tier:` line means the manifest's `defaultTier`.
 - An `effort:` line in the version wins over the tier's effort.
@@ -168,6 +170,7 @@ table prints, and exits 0, with a broken election in it.
 | Scope | Renders to |
 |---|---|
 | `global` | every session: `home/claude/skills/` |
+| `hub` | sessions opened in the descendant itself: `home/claude/repos/hub/skills/`, which the descendant's own `.claude/skills` links to. `/pagma-update` and `/pagma-uninstall` live here |
 | a repo's folder name | that repo only. `just forge discover-exact <repo>` sets it up in one step for a repo under `$FORGE_DEV_ROOT` (default `~/dev`): it declares the root in the manifest, renders, and makes the one link the repo needs |
 | `keg-only` | nowhere. The versions are kept and nothing is rendered |
 

@@ -3,4 +3,8 @@
 home/claude/skills/
 home/claude/agents/
 home/claude/tools/
+home/claude/repos/
 forge/scratch/
+
+# The hub's own link to the skills rendered for it (home/claude/repos/hub/skills) — made at install.
+.claude/skills
