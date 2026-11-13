@@ -1,195 +1,191 @@
 # pagma
 
-A package manager for the prompt layer: agent skills, subagent definitions and shared
-tools kept as **immutable versions in a cellar**, **elected** through one manifest, and
-**rendered** into the directories each AI harness actually loads from. The engine
-behind a private dotfiles repo, extracted so the same mechanism can run anywhere.
+Your own package manager for AI skills, agents and the tools they call. One repo holds
+every version you have written, a manifest says which version is live and where, and one
+command makes it so.
 
-Named for the blacksmith in *Overgeared*. pagma needs one repository to be the hub that
-every skill and agent is managed from: it holds each version you write and the manifest of
-which is live, and from it a skill is global or aimed at a single repo. A repo set up as
-that hub, new or existing, is a *descendant*: it carries the engine inside and takes its
-updates from it. The scaffold that makes one is the *rare book*. Those two nouns are the
-whole borrowed vocabulary; the verbs stay plain: `just forge render`.
+It is for people who already write skills for Claude Code and have started to feel the
+mess.
 
-**Built for agents, learned by hand.** Every change has two verbs over one engine: an
-`-exact` form that takes arguments, which is what an agent runs, and an interactive twin
-with fzf pickers, which is for you.
+## The mess it clears up
 
-| By hand | What an agent runs | Does |
-|---|---|---|
-| `just forge view` | `just forge show <label>` | read one election: version, tier, edges, live state |
-| `just forge elect` | `just forge elect-exact <label> <version>` | make a version live |
-| `just forge move` | `just forge move-exact <label> <scope>` | move a skill between scopes |
-| `just forge retire` | `just forge retire-exact <label>` | take a skill out of service, keep its versions |
+I built this out of friction I kept hitting while learning skills, agents, models and
+harnesses:
 
-Drive it by hand once before you delegate it. You will know what your agent can do
-because you have done it yourself.
+- **Copies drift.** I improved a skill in one repo and the copy in another stayed old.
+  Then the other way round.
+- **The global folder bloats every session.** Keeping everything in `~/.claude/skills`
+  stops the drift, but then every session in every repo loads every description, and the
+  context window pays for skills that repo never uses.
+- **Trying a variation means one more copy.** The same skill on a stronger model, at
+  another effort level, with a different tool: each experiment was another file to drift.
+- **A fix can make a skill worse.** A patch that reads better can perform worse. Git can
+  bring the old text back, but with enough friction that I rarely did.
 
-## The mechanism in one screen
+pagma is what I ended up with: one hub that everything is managed from, and that you can
+keep building on. Skills, prompt templates and the tools paired with them are your own
+body of work. They deserve a place where they are kept, versioned and improved for years.
 
-```text
-forge/skills/global/consult/v1.7.0/SKILL.md   ← cellar: every version ever authored, immutable once committed
-            ↓  forge/elections.json: global/consult → v1.7.0
-            ↓  just forge render
-home/claude/skills/consult/SKILL.md           ← bin tree: disposable build output, gitignored
-            ↑  ~/.claude/skills → home/claude/skills   (one symlink, made once)
-```
+## What you get
 
-Three ideas, each borrowed:
+| The friction | With pagma |
+|---|---|
+| copies drift between repos | one source per skill, in the hub. A repo does not hold a copy: it links to output built from that source, so there is nothing to keep in sync |
+| global skills bloat the context | aim a skill at one repo and only sessions in that repo load it. Global is for what you want everywhere |
+| a new version might be worse | every version stays on disk in its own folder. Making another one live, newer or older, is one command |
+| testing on another model or effort | a skill names a tier (`lightweight`, `workhorse`, `sota`), not a model. Move one skill to another tier with one command, or change what a tier means for all of them in one place |
+| the agent manages skills at random | every action is a command with exact arguments, built for an agent to run, and `/prime-forge` teaches your agent the whole system in one step |
 
-| Idea | Prior art | What it buys |
-|---|---|---|
-| Versions are directories, never edited in place | Homebrew Cellar (`Cellar/<formula>/<version>/`) | `git log` is the history of the text; a bad bump is one election away from undone |
-| Which version is live is a manifest entry, not a symlink | Homebrew `opt/`, Nix generations | promote = edit one line + render; the drift gate can prove the live tree matches |
-| Output is a build step from manifest + cellar | compiler: source → artifact | delete the bin trees, render, get them back byte-identical |
+I lean on AI to write my skills, so mistakes had to be cheap: nothing is overwritten, and
+the version that worked is always one command away.
 
-Two more that fall out of running it for a while:
+## Install
 
-- **Capability tiers, not model names.** A version declares `tier: sota`, never
-  `model: opus`. The manifest's per-harness `tiers` table lowers the tier to a concrete
-  model and effort at render. Swap the model fleet without touching a single skill body.
-- **Agents as variants.** One agent definition, N rendered names, each with election-level
-  overrides (`workhorse`, `workhorse-ro` with mutation tools removed). The `shim` agent in
-  the example is the degenerate case: the whole contract is the tier.
-
-The drift gate is the whole safety story: `just forge render --check` renders to a
-shadow tree and byte-diffs it against the live bin trees, failing on any hand edit,
-missing version or orphan. Run it in CI or as a pre-commit hook and the manifest is
-provably what is live.
-
-## Quickstart
-
-**With a coding agent** (Claude Code, Codex, any harness that can read a URL and run a
-shell). Open it in the directory that should hold your prompts, empty or not, and paste:
+Open your coding agent in the folder that should become your hub, a new empty one is
+fine, and paste:
 
 ```
 Install pagma here: read and follow https://github.com/hefboom/pagma/blob/main/INSTALL.md
 ```
 
-Or clone this repo and type `/pagma-install` in Claude Code inside it; it asks where
-your descendant should live, builds it there, and tells you when the clone can go. The
-clone is a bootstrap, not a place to work: nothing runs from the engine's own checkout.
+Or clone this repo and type `/pagma-install` in Claude Code inside it. That way it asks
+where the hub should live and suggests `~/pagmas-descendant`.
 
-[`INSTALL.md`](./INSTALL.md) is written for the agent: it installs what is missing,
-mounts the engine, scaffolds the descendant, links the harness and reports. Nothing in it
-touches your `~/.claude` without asking when something is already there.
+The agent shows you a plan and waits for your go-ahead before it changes anything. Then it:
 
-**Without one**, start from the template: [github.com/hefboom/pagmas-descendant](https://github.com/hefboom/pagmas-descendant)
-→ *Use this template* → clone it. It is a descendant with the engine already mounted
-and `/pagma-install` committed in `.claude/skills/`, so in Claude Code the install is
-that one command; other agents find the same pointer in `AGENTS.md`.
+- installs the tools that are missing (`bun`, `just`, `jq`, `fzf`)
+- sets up your hub: a git repo with the engine inside and a starter set of skills. The
+  docs call the hub a *descendant*
+- links `~/.claude/skills`, `agents` and `tools` to the hub's output. If you already have
+  skills there, it offers to adopt them as `v1.0.0`, and it keeps your original folder
+- writes down everything it created, so that `/pagma-uninstall` can remove exactly that
+  and tell you when nothing is left
 
 <details>
-<summary>The steps by hand</summary>
+<summary>Without an agent, or by hand</summary>
 
-Prerequisites: `bun`, `just`, `jq`, `fzf`, `python3`, `git` (per-OS commands in `INSTALL.md`).
+Start from the template, [hefboom/pagmas-descendant](https://github.com/hefboom/pagmas-descendant):
+*Use this template*, then clone it. Or build the hub yourself. You need `bun`, `just`,
+`jq`, `fzf` and `git`:
 
 ```bash
 mkdir pagmas-descendant && cd pagmas-descendant && git init && git commit --allow-empty -m init
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.29 --squash
-bash forge/engine/scripts/init.sh          # the rare book: manifest, cellar, justfile, first render
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.30 --squash
+bash forge/engine/scripts/init.sh          # manifest, starter set, justfile, first render
 just forge status                          # one row per election, LIVE column says ok
+ln -s "$PWD/home/claude/skills" ~/.claude/skills    # and the same for agents and tools
 ```
 
-`init` writes `forge/elections.json` with one harness, copies the starter set (below)
-into your cellar, and renders it into `home/claude/`.
-Point the harness at the bin trees once — `ln -s $PWD/home/claude/skills ~/.claude/skills`,
-same for `agents/` — and `/hello` exists in your next session. It never touches `~` itself.
+`init.sh` never touches your home folder. The links are yours to make.
 
 </details>
 
-From there the loop is:
+## Using it
 
-```bash
-cp -R forge/skills/global/hello/v1.0.0 forge/skills/global/hello/v1.0.1   # new version = new directory
-$EDITOR forge/skills/global/hello/v1.0.1/SKILL.md
-just forge elect-exact claude-code/global/hello v1.0.1                      # validates, writes the manifest, renders
-just forge render --check                                                   # drift gate
+The workflow is short. In any repo:
+
+1. Run `/prime-forge`. Your agent now knows how the hub works, what is live, and how the
+   hub relates to your other repos.
+2. Ask for what you want.
+
+A good moment is a tedious step you keep doing by hand, or one the agent does differently
+every time. Committing, for example. Commit the way you like it a few times, then:
+
+```
+Look at how I wrote my last commits and break the pattern down. Then run /prime-forge.
+After that I want to work out, with you, a skill that commits the way I do.
 ```
 
-Try it without a repo: `FORGE_ROOT=$PWD/examples/descendant just render --check` from
-this checkout renders the example in place.
+The agent writes the skill into the hub as `v1.0.0` and makes it live; your next session
+has it. Want a change? It writes `v1.0.1` beside the first and switches to it. Turned out
+worse? Tell it to go back, and `v1.0.0` is live again. Both versions stay on disk.
 
-Supported: macOS and Linux. Windows natively through Git Bash is new in v0.1.19 and still
-being proven (`install/windows.md`); inside WSL2 it is the Linux install.
+Everything the agent does, you can do by hand with a picker. Try it once: you will know
+what your agent can do because you have done it yourself.
+
+| By hand | What an agent runs | Does |
+|---|---|---|
+| `just forge view` | `just forge show <label>` | shows one skill: its versions, which is live, its tier |
+| `just forge elect` | `just forge elect-exact <label> <version>` | makes a version live |
+| `just forge move` | `just forge move-exact <label> <scope>` | moves a skill between global and one repo |
+| `just forge retire` | `just forge retire-exact <label>` | takes a skill out of service and keeps its versions |
 
 ### Starter set
 
-What a fresh descendant holds. It is copied once and is yours from then on: change it,
-version it, retire it.
+What a fresh hub holds. It is copied once and is yours from then on: change it, version
+it, retire it.
 
 | Name | Kind | What it is for |
 |---|---|---|
-| `hello` | skill | the smoke test: one line that proves cellar, manifest and render work |
-| `prime-forge` | skill | teaches a fresh agent how the forge works and what is live, so it can write, version and elect skills for you. Run it first, then ask your agent anything about the forge |
-| `doc-section` | tool | reads one section of a markdown file by its heading. `prime-forge` uses it to load only the parts of `AUTHORING.md` it needs |
+| `prime-forge` | skill | teaches a fresh agent how the hub works and what is live, so it can write, version and switch skills for you. Run it first, then ask your agent anything |
 | `systems-architect` | skill | takes a system, a document or a design apart into its working parts, how they act on each other, and one governing analogy. Tag the topic `understand`, `debug` or `audit`. Runs on the top tier. To run it in a subagent, spawn `sota` and name the skill |
-| `lightweight`, `workhorse`, `sota` | agents | nothing but a model tier: spawn one to run a prompt, or a named skill, on that tier. All three are one definition, `shim`, rendered under three names |
+| `hello` | skill | the smoke test: one line that proves the hub works end to end |
+| `doc-section` | tool | reads one section of a markdown file by its heading. `prime-forge` uses it to load only the parts of `AUTHORING.md` it needs |
+| `lightweight`, `workhorse`, `sota` | agents | nothing but a model tier: spawn one to run a prompt, or a named skill, on that tier |
 | `lightweight-ro`, `workhorse-ro`, `sota-ro` | agents | the same three with the editing tools removed: they report and never change files |
 
-## Layout of a descendant
+## How it works
 
 ```text
-forge/
-  engine/            pagma — this repo, as a git subtree pinned to a tag
-  elections.json     the manifest: harnesses → roots, tiers, elections, agents, tools
-  skills/            cellar: {scope}/{name}/v{X.Y.Z}/SKILL.md
-  agents/            cellar: {name}/v{X.Y.Z}/AGENT.md
-  tools/ partials/   cellars: shared executables and prose fragments (optional)
-  scratch/           the --check shadow tree (gitignored)
-home/<harness>/      bin trees (gitignored)
-justfile             mod forge 'forge/engine/justfile'
+forge/skills/global/commit/v1.0.1/SKILL.md    the cellar: every version, never edited again
+        ↓  forge/elections.json: global/commit → v1.0.1
+        ↓  just forge render
+home/claude/skills/commit/SKILL.md            the output: rebuilt on every render
+        ↑  ~/.claude/skills links here, made once at install
 ```
 
-**The engine owns no paths.** It finds the descendant through `$FORGE_ROOT`, or by
-walking up from its own location to the nearest `forge/elections.json`. Every path in the
-manifest is relative to that root. The manifest also pins the engine (`"engine": "v0.1.0"`);
-render refuses to run against a different `VERSION`, so pulling the subtree and re-pinning
-is one deliberate step.
+Three parts. The **cellar** stores every version as its own folder. The **manifest** is
+one file that says which version is live and where. **Render** builds the folders your
+harness reads from those two, and `just forge render --check` proves the output still
+matches. The storage idea is Homebrew's Cellar; the build step is a compiler's.
 
-Scopes route output: `global` renders to the harness's user-level directory; a repo
-basename renders to `home/<harness>/repos/<repo>/` and `just forge link <repo>` plants
-the one symlink that repo needs; `keg-only` keeps a version in the cellar and renders it
-nowhere. Pick the verb lexicon up from `just forge` (grouped) or `just forge all`.
+A skill in the `global` scope reaches every session. A skill scoped to one repo is
+rendered for that repo alone, and the repo holds a single link to it.
 
-## Upgrading the engine
+[`AUTHORING.md`](./AUTHORING.md) has the whole model: layout, tiers, tools, agents,
+naming, and the commands for each step.
 
-With an agent, in the descendant: `/pagma-update` in Claude Code, or paste
-`Upgrade pagma here: read and follow https://github.com/hefboom/pagma/blob/main/UPDATE.md`.
-It shows the changelog between your pin and the newest tag, asks, then pulls, re-pins,
-applies each version's `manifest:` step and runs the gate. By hand:
+## Update and uninstall
 
-```bash
-git subtree pull --prefix forge/engine https://github.com/hefboom/pagma.git v0.2.0 --squash
-jq '.engine = "v0.2.0"' forge/elections.json > t && mv t forge/elections.json    # plus any manifest: lines in CHANGELOG.md
-just forge render --check
-```
+- **Update:** `/pagma-update` in the hub. It shows what changed between your version and
+  the newest, asks, then applies it. New starter content is offered, never forced.
+- **Uninstall:** `/pagma-uninstall`. It walks the record the install kept, asks per item,
+  and ends by telling you that nothing remains. Your own skills are never removed without
+  an explicit yes.
 
-Tags are the versions. There is no package to install; the subtree commit is the receipt.
-Leaving is `/pagma-uninstall`, or [`UNINSTALL.md`](./UNINSTALL.md) for any agent. Install
-keeps a ledger of everything it creates on the machine (`~/.config/pagma/ledger.jsonl`:
-the links, the shell lines, the tools it had to add). Uninstall walks that ledger, asks
-per item, and reports entry by entry until nothing is left. Nothing of yours goes without
-asking.
+Any other agent can do the same from [`UPDATE.md`](./UPDATE.md) and
+[`UNINSTALL.md`](./UNINSTALL.md).
 
-## Posture
+## Status
 
-Dogfooded upstream: the author's own dotfiles consume this exact engine as a subtree,
-pinned by tag, and every verb here is exercised daily there. No support promise, no
-stability promise before v1 — the manifest shape and the `-exact` verbs are the parts
-least likely to move. Issues and patches welcome; expect the answer to be "that is the
-descendant's job" more often than not. The harvest/stamp/keg scripts in `scripts/` are a
-suite-publishing pipeline coupled to the author's suite and are not yet general.
+- **Harness:** Claude Code. The manifest is keyed by harness so that others can follow;
+  none is built yet.
+- **Systems:** macOS and Linux. Windows works natively through Git Bash, which Claude
+  Code already uses there; it is new and still being proven (`install/windows.md`), and
+  aiming a skill at one repo does not run on Windows yet.
+- **Testing versions against each other:** today you switch and try. A harness that runs
+  and compares versions is planned.
+- **Stability:** before v1 there is no promise. I run my own setup on this exact engine
+  every day, pinned by tag. The manifest's shape and the `-exact` commands are the parts
+  least likely to move.
+- Issues and patches are welcome. The harvest, stamp and keg scripts in `scripts/` belong
+  to my own publishing pipeline and are not general yet.
+
+## The name
+
+Pagma is the legendary blacksmith in *Overgeared*. Your hub is his *descendant*: it
+carries the engine inside and takes its updates from it. The scaffold a new hub starts
+from is the *rare book*. Those two nouns are the whole borrowed vocabulary. The commands
+stay plain, and they say `forge` because that is the folder the hub works in.
 
 ## Docs
 
-- [`INSTALL.md`](./INSTALL.md), [`UPDATE.md`](./UPDATE.md), [`UNINSTALL.md`](./UNINSTALL.md)
-  — the three agent-facing procedures; [`CHANGELOG.md`](./CHANGELOG.md) — one entry per tag.
-- [`AUTHORING.md`](./AUTHORING.md) — how the forge works once installed, and how to
-  write, version and release a skill in it. What `prime-forge` reads.
-- [`scripts/README.md`](./scripts/README.md) — every script, the manifest contract,
-  multicast scopes, link modes.
-- [`examples/descendant/`](./examples/descendant/) — the rare book, readable in two minutes.
+- [`AUTHORING.md`](./AUTHORING.md): how the hub works once installed, and how to write,
+  version and release a skill in it. What `prime-forge` reads.
+- [`INSTALL.md`](./INSTALL.md), [`UPDATE.md`](./UPDATE.md), [`UNINSTALL.md`](./UNINSTALL.md):
+  the three procedures, written for the agent that carries them out.
+- [`CHANGELOG.md`](./CHANGELOG.md): one entry per tag.
+- [`scripts/README.md`](./scripts/README.md): every script and the full manifest contract.
+- [`examples/descendant/`](./examples/descendant/): the rare book, readable in two minutes.
 
-MIT — see [LICENSE](./LICENSE).
+MIT, see [LICENSE](./LICENSE).
