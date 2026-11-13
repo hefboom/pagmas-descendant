@@ -3,6 +3,10 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.30
+- `README.md` is rewritten for the person deciding whether to install: the friction pagma removes, what you get, the install, the workflow around `/prime-forge`, the starter set. The mechanism, layout and scope detail it used to carry now live in `AUTHORING.md`.
+- manifest: none.
+
 ## v0.1.29
 - New: `AUTHORING.md`, how the forge works once installed and how to write, version and release a skill in it. Its headings are addresses: skills cite them by section.
 - The starter set gains the `prime-forge` skill and the `doc-section` tool. `prime-forge` teaches a fresh agent the forge from any directory: it loads the sections of `AUTHORING.md` it cites through `doc-section`, the verbs from the justfile and the status table. It is the first use of the tools cellar in the template.
