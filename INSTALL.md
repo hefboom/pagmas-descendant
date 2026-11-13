@@ -7,12 +7,56 @@ to. Report at the end with the output of the two verification commands.
 Vocabulary: the *engine* is this repository, mounted at `forge/engine/` inside a
 *descendant*, the repo that holds the person's own skills, agents and manifest.
 
+## The ledger
+
+Everything this install puts on the machine is written down as it is created: one JSON
+object per line in `~/.config/pagma/ledger.jsonl`. `UNINSTALL.md` walks that file, so it
+removes exactly what pagma added and can say when nothing is left. Two rules:
+
+- Record a thing only if **this run** created it. A tool that already resolved, a line
+  already in an rc file, a link that already pointed here: no line. Uninstall never offers
+  to remove what is not on the ledger.
+- Record it right after creating it, with `jq -nc` so no quoting is done by hand. There are
+  six kinds; each step below says when its line is written:
+
+```bash
+L="$HOME/.config/pagma/ledger.jsonl"; mkdir -p "$(dirname "$L")"
+jq -nc --arg n bun --arg v installer --arg r 'rm -rf "$HOME/.bun"' '{kind:"dep",name:$n,via:$v,remove:$r}' >> "$L"
+jq -nc --arg p "$HOME/.config/pagma/env" '{kind:"file",path:$p}' >> "$L"
+jq -nc --arg f "$HOME/.profile" --arg t '[ -f "$HOME/.config/pagma/env" ] && . "$HOME/.config/pagma/env"' '{kind:"line",file:$f,text:$t}' >> "$L"
+jq -nc --arg p "<clone path>" '{kind:"clone",path:$p}' >> "$L"
+jq -nc --arg p "<descendant path>" --argjson i false '{kind:"descendant",path:$p,in_place:$i}' >> "$L"
+jq -nc --arg p "$HOME/.claude/skills" --arg t "<descendant path>/home/claude/skills" '{kind:"symlink",path:$p,target:$t}' >> "$L"
+```
+
+Paths are absolute. A `dep` line carries the command that undoes it:
+
+| Installed with | `via` | `remove` |
+|---|---|---|
+| Homebrew | `brew` | `brew uninstall <name>` |
+| apt | `apt` | `sudo apt-get remove <name>` |
+| dnf | `dnf` | `sudo dnf remove <name>` |
+| the bun installer | `installer` | `rm -rf "$HOME/.bun"` |
+| the just installer | `installer` | `rm "$HOME/.local/bin/just"` |
+
+**A machine without one.** An install from before v0.1.11, or one done by hand, has no
+ledger. Build it by inspection with the same lines, and tell the person the list is
+inferred, not recorded:
+
+- `symlink`: each of `~/.claude/{skills,agents,tools}` that is a symlink into the descendant.
+- `file`: `~/.config/pagma/env`, if it exists.
+- `line`: each of `~/.profile`, `~/.bashrc`, `~/.zprofile`, `~/.zshrc` that carries the source line (`grep -xF`).
+- `descendant`: its path. Ask whether the directory was the person's before pagma (`in_place`, step 2); `true` if unsure.
+- `dep`: inspection cannot tell who installed a tool. Ask which of the six the person installed for pagma and record those, `via` read from where `command -v` finds the binary. No answer, no `dep` lines.
+
 ## 1. Prerequisites
 
 The engine needs `git`, `bun`, `just` **1.31 or newer**, `jq`, `fzf`, `python3`. Check
 each with `command -v`, and `just --version` against the floor: the engine's justfile uses
-`[group]` and `mod`, and distro packages are often older (Ubuntu 24.04 ships 1.21). Install
-only what is missing, with the person's package manager:
+`[group]` and `mod`, and distro packages are often older (Ubuntu 24.04 ships 1.21). Write
+down which names are missing, or for just too old, **before** you install anything: that
+list is what the ledger records. Install only what is missing, with the person's package
+manager:
 
 | OS | Command |
 |---|---|
@@ -53,13 +97,18 @@ Check, in a fresh shell rather than the current one:
 
 Check: every one of the six names resolves with `command -v`, and `just --version` is 1.31 or newer.
 
+Ledger: one `dep` line for each name on your before-list that now resolves, whoever typed
+the command (a line you handed to the person counts). Tools that were already there get
+none. Then a `file` line for `~/.config/pagma/env` if you created it, and a `line` line for
+each rc file you added the source line to.
+
 ## 2. The descendant
 
 Decide which case you are in by looking at the current directory:
 
 | You see | Case | Do |
 |---|---|---|
-| `VERSION` and `scripts/render.ts` in the directory itself, origin `hefboom/pagma` | a clone of the engine repo: the bootstrap case | never mount the engine into itself. **Ask where the descendant should live.** Suggest `~/prompts`; offer an existing repo the person already keeps their shell or editor config in, which becomes the descendant in place. Create the directory if needed, then continue with the row that matches it, running every later command in that directory (`cd` or absolute paths; your session stays rooted in the clone). In step 5, add the cleanup line. |
+| `VERSION` and `scripts/render.ts` in the directory itself, origin `hefboom/pagma` | a clone of the engine repo: the bootstrap case | never mount the engine into itself. **Ask where the descendant should live.** Suggest `~/prompts`; offer an existing repo the person already keeps their shell or editor config in, which becomes the descendant in place. Create the directory if needed, then continue with the row that matches it, running every later command in that directory (`cd` or absolute paths; your session stays rooted in the clone). Record a `clone` line for the directory you are standing in. In step 5, add the cleanup line. |
 | `forge/elections.json` and `forge/engine/VERSION` | an existing descendant (a clone of a template, or a second machine) | nothing here, go to step 3 |
 | `forge/engine/VERSION` but no `forge/elections.json` | engine mounted, not yet scaffolded | `bash forge/engine/scripts/init.sh`, go to step 4 |
 | neither, inside a git repo | a repo that should become a descendant | mount the engine (below), then `init.sh` |
@@ -68,15 +117,21 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.10 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.11 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.10`.
+Check: `cat forge/engine/VERSION` prints `0.1.11`.
 
 Now record the descendant's location: append `export FORGE_ROOT="<absolute path of the
 descendant>"` to `~/.config/pagma/env` (replace an existing `FORGE_ROOT` line), and export
 it in the current shell. The engine finds the descendant by walking up from its own
 location, but skills that run from any cwd (the bundled `prime-forge`) need the variable.
+
+Ledger: one `descendant` line, always, whichever row you came through: it is where pagma
+lives on this machine. `in_place` is `true` when the directory is the person's own repo
+holding things other than pagma (their config repo), `false` when it exists only to be the
+descendant (created now, empty before, or a clone of the template). Uninstall never removes
+an in-place directory, only pagma's paths inside it.
 
 ## 3. Build
 
@@ -99,6 +154,10 @@ creates all three roots, empty or not). For each:
 
 Check: `readlink ~/.claude/skills` prints a path ending in `home/claude/skills`.
 
+Ledger: a `symlink` line for each link you created. If you repointed an existing link, add
+its old target as `replaced` (`--arg w "<old target>"`, `replaced:$w`), so uninstall can
+offer to point it back.
+
 ## 5. Verify and report
 
 ```bash
@@ -108,7 +167,15 @@ just forge render --check
 
 Pass looks like: every row's LIVE column says `ok`, and the gate prints
 `N/N elections render byte-identical to the live bin trees`. Report both outputs, the
-OS and package manager you used, and anything you installed. The scaffold is
+OS and package manager you used, and anything you installed. Close the ledger (drop
+repeated lines from a re-run) and include it in the report, so the person sees everything
+that was put on the machine:
+
+```bash
+L="$HOME/.config/pagma/ledger.jsonl"; awk '!seen[$0]++' "$L" > "$L.tmp" && mv "$L.tmp" "$L"; cat "$L"
+```
+
+The scaffold is
 uncommitted; offer to commit it (`git add -A && git commit -m "pagma: descendant"`). If you
 started in a clone of the engine (the bootstrap row), say that the clone is now redundant,
 since the descendant carries its own copy of the engine, and give the person the line to
