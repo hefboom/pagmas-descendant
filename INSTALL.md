@@ -53,7 +53,7 @@ inferred, not recorded:
 
 Look first and change nothing: which of the six tools in step 1 are missing (your
 before-list), which row of step 2 you are in, and whether `~/.claude/{skills,agents,tools}`
-exist. Then show the person the plan as one list and ask once:
+exist. Then show the person the plan as one list:
 
 | What | Where |
 |---|---|
@@ -64,9 +64,36 @@ exist. Then show the person the plan as one list and ask once:
 | the descendant | its directory; in the bootstrap row of step 2, ask where it should live as part of this question, and not again later |
 | three links | `~/.claude/{skills,agents,tools}`, pointing into the descendant |
 
+Under the plan, offer the same four choices on every machine, in this order and in these
+words. The question comes back after the middle two, until the person picks the first or
+the last:
+
+| Choice | What you do |
+|---|---|
+| **Go ahead** (recommended) | start step 1 |
+| **Explain first** | ask which piece they want explained: one tool, one row of the plan, or all of it. Answer from the table below, in their terms and as briefly as it allows, then show the plan and the four choices again |
+| **Change the plan** | a different directory for the descendant, or leave the rc lines to them (below). Show the changed plan and the four choices again |
+| **Stop** | change nothing, and say that nothing was changed |
+
+Why each piece is there. Explain from this, not from memory:
+
+| Piece | What pagma uses it for | Without it |
+|---|---|---|
+| `git` | mounts the engine inside the descendant as a subtree pinned to a tag; an update pulls the next tag | no install, no update |
+| `bun` | runs the renderer, the TypeScript that turns the manifest into the skill and agent files the harness reads | nothing renders |
+| `just` | the command runner: every verb (`just forge render`, `status`, `elect-exact`) is a recipe in the engine's justfile, which needs 1.31 for its syntax | no verbs |
+| `jq` | reads and edits the manifest `forge/elections.json` inside the verbs, and writes the ledger | no election can change |
+| `fzf` | the pickers in the interactive verbs (`elect`, `move`, `retire`, `discover`) | only those verbs stop; the `-exact` ones do not use it. The setup check still asks for all six |
+| `python3` | one read-only report, `just forge edges` | only that report stops. The setup check still asks for all six |
+| `~/.config/pagma/env` | bun and just install outside the default `PATH`; this file puts them on it and records where the descendant is (`FORGE_ROOT`) | new shells find neither the tools nor the descendant |
+| the rc lines | one line per startup file that reads the env file; two files because login shells and the shells tools start read different ones | the env file is never read |
+| the ledger | the record uninstall walks, so removal is exact and can end on "nothing remains" | uninstall falls back to inspecting the machine |
+| the descendant | the person's own repo: the manifest, every skill and agent version they write, and the engine mounted inside | nowhere for their skills to live |
+| the three links | the harness reads `~/.claude/…`, the engine renders inside the descendant; the links join the two | the harness sees no rendered skills |
+
 Shell startup files and `~/.claude` are the person's. A harness may refuse to touch them
-without the person's say-so, and it is right to: their yes to this list is that say-so. If
-they say no to the rc lines, skip those and give them the line to add when they choose;
+without the person's say-so, and it is right to: their "go ahead" on this plan is that
+say-so. If they leave the rc lines to themselves, skip those and give them the line to add when they choose;
 everything else still installs, but new shells will not find bun and just until it is there.
 
 Then work in small commands: one change and its ledger line per command, never a whole
@@ -142,10 +169,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.12 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.13 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.12`.
+Check: `cat forge/engine/VERSION` prints `0.1.13`.
 
 Now record the descendant's location: append `export FORGE_ROOT="<absolute path of the
 descendant>"` to `~/.config/pagma/env` (replace an existing `FORGE_ROOT` line), and export

@@ -3,6 +3,9 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.13
+- The plan question is a fixed menu that loops: go ahead, explain first, change the plan, stop. "Explain first" answers from a table in `INSTALL.md` that says what each tool and each piece is for and what stops without it, then returns to the same four choices. Before this the agent composed its own options, so no two installs asked the same thing.
+
 ## v0.1.12
 - `INSTALL.md` opens with a plan: look first, show the person everything the install will put on the machine (tools, the env file, the rc lines, the ledger, the descendant, the links), ask once. After that, small commands, one change and its ledger line each; a change the harness still refuses is handed to the person. Found live: an agent put the env file, both rc edits and the ledger into one command, and its harness refused it as persistence nobody had approved.
 
