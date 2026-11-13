@@ -70,7 +70,7 @@ Prerequisites: `bun`, `just`, `jq`, `fzf`, `python3`, `git` (per-OS commands in 
 
 ```bash
 mkdir my-prompts && cd my-prompts && git init && git commit --allow-empty -m init
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.10 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.11 --squash
 bash forge/engine/scripts/init.sh          # the rare book: manifest, cellar, justfile, first render
 just forge status                          # one row per election, LIVE column says ok
 ```
@@ -135,8 +135,11 @@ just forge render --check
 ```
 
 Tags are the versions. There is no package to install; the subtree commit is the receipt.
-Leaving is `/pagma-uninstall`, or [`UNINSTALL.md`](./UNINSTALL.md) for any agent: it
-removes the harness links and nothing of yours without asking.
+Leaving is `/pagma-uninstall`, or [`UNINSTALL.md`](./UNINSTALL.md) for any agent. Install
+keeps a ledger of everything it creates on the machine (`~/.config/pagma/ledger.jsonl`:
+the links, the shell lines, the tools it had to add). Uninstall walks that ledger, asks
+per item, and reports entry by entry until nothing is left. Nothing of yours goes without
+asking.
 
 ## Posture
 

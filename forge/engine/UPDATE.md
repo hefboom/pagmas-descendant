@@ -48,7 +48,10 @@ done
 
 Then every `manifest:` line from step 2, oldest version first. A jq expression is applied
 the same way as the pin line above; a shell command is run as written. Skip a step whose
-effect is already present (the key exists, the symlink exists).
+effect is already present (the key exists, the symlink exists). A step that creates
+something on the machine (a symlink, a file outside the descendant) also gets its line in
+`~/.config/pagma/ledger.jsonl`, written as `forge/engine/INSTALL.md` § The ledger shows, so
+uninstall knows about it.
 
 ## 4. Verify and report
 
@@ -59,6 +62,7 @@ just forge render --check
 ```
 
 Pass: the gate prints `N/N elections render byte-identical to the live bin trees`.
-Report the versions crossed, each manifest step applied or skipped, and the gate line.
+Report the versions crossed, each manifest step applied or skipped, any ledger lines
+added, and the gate line.
 Offer to commit (`git add -A && git commit -m "forge: engine <newest-tag>"`). If a step in
 this file did not match what you found, say so — that is a bug in this file.
