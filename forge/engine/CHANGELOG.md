@@ -3,6 +3,10 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.23
+- `INSTALL.md` fixes where each piece of a question goes: the plan and an explanation are ordinary message text, the question tool carries one line and the choices, and an option's preview pane is never used. An explanation is plain sentences, and the plan is not repeated after it. Found live: an agent put the answer to "Explain first" into a preview pane, which showed only while one option was highlighted and was empty for the others.
+- manifest: none.
+
 ## v0.1.22
 - An existing `~/.claude/skills` is settled before the plan, with four fixed choices: adopt (each skill becomes `v1.0.0` in the hub and is elected), start clean, do not link, stop. In the first two the directory is set aside as `~/.claude/skills.before-pagma`, never deleted, recorded on the ledger as `aside`, and `UNINSTALL.md` puts it back. Linking skill by skill is gone: a linked directory is the rendered output, and links nobody keeps current break that.
 - The Claude app's `synced/` folder is carried into the linked directory, and the template manifest exempts it from render's cleanup. Before, a render deleted it.
