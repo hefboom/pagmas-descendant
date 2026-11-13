@@ -13,8 +13,8 @@ cat ~/.config/pagma/ledger.jsonl
 
 One JSON object per line, written by `INSTALL.md` as each thing was created: the complete
 list of what pagma put on this machine. If the file is absent (an install from before
-v0.1.11, or one done by hand), build it first by inspection, following "A machine without
-one" in `forge/engine/INSTALL.md` § The ledger, and say that the list is inferred.
+v0.1.11, or one done by hand), build it first by inspection, following
+`forge/engine/install/no-ledger.md`, and say that the list is inferred.
 
 Show the person the whole list as a table (kind, what, where) before removing anything.
 Read it once and keep it: a later stage may remove `jq`, and you report against this list
@@ -57,7 +57,7 @@ written there through the link. If no `aside` entry brings one back, move it out
 the descendant goes: `mkdir "$HOME/.claude/skills"`, then `mv` it to
 `~/.claude/skills/synced`. It is the app's, and its built-in skills depend on it.
 
-On Windows the links are junctions (`INSTALL.md` § On Windows). `readlink` reads one like
+On Windows the links are junctions (`install/windows.md`). `readlink` reads one like
 a symlink. Remove each with `rmdir "<path>"`: it deletes the junction alone and cannot
 take the contents with it. Never `rm -r`. To point a link back, use the junction command
 there, not `ln -s`.

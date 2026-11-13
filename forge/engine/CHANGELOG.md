@@ -3,6 +3,10 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.24
+- `INSTALL.md` is a core and a router. Five situations moved to their own file under `install/`, read only when they apply: `windows.md`, `existing-folder.md`, `installers.md`, `explain.md`, `no-ledger.md`. The core went from 531 lines to 333. A pure move: every line is where it was or in one of the five, and eight lines were reworded to point at the new files.
+- manifest: none.
+
 ## v0.1.23
 - `INSTALL.md` fixes where each piece of a question goes: the plan and an explanation are ordinary message text, the question tool carries one line and the choices, and an option's preview pane is never used. An explanation is plain sentences, and the plan is not repeated after it. Found live: an agent put the answer to "Explain first" into a preview pane, which showed only while one option was highlighted and was empty for the others.
 - manifest: none.
@@ -59,7 +63,7 @@ needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
 ## v0.1.11
 - The ledger: `INSTALL.md` records everything it creates on the machine in `~/.config/pagma/ledger.jsonl`, one JSON line each (the tools it had to add, the env file, the rc lines, the harness links, the descendant, the bootstrap clone). `UNINSTALL.md` walks it: verify, ask, remove, confirm, with a yes/no per added tool, and ends on a per-entry report that can say "nothing pagma created remains". A tool that was on the machine before pagma is never on the ledger and never offered for removal.
-- manifest: none. Machine: if `~/.config/pagma/ledger.jsonl` is absent, build it by inspection (`INSTALL.md` § The ledger, "A machine without one").
+- manifest: none. Machine: if `~/.config/pagma/ledger.jsonl` is absent, build it by inspection (`install/no-ledger.md`).
 
 ## v0.1.10
 - The clone is a first-class bootstrap: the engine repo ships `/pagma-install` and `AGENTS.md` at its root; `INSTALL.md`'s engine-clone row asks where the descendant should live (suggests `~/prompts`, or an existing config repo in place), continues there, and ends with the cleanup line for the clone. Five agents stood in a clone today.

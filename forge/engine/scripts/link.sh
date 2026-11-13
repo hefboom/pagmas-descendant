@@ -34,7 +34,7 @@ fi
 # goes stale at the next render. Refuse until this script makes junctions itself.
 case $(uname -s) in
   MINGW* | MSYS*)
-    echo "just forge link does not run on Windows yet (ln -s copies there). Link by hand with a junction, INSTALL.md § On Windows: $repo_dir/.claude/skills -> $target" >&2
+    echo "just forge link does not run on Windows yet (ln -s copies there). Link by hand with a junction, install/windows.md: $repo_dir/.claude/skills -> $target" >&2
     exit 1
     ;;
 esac
