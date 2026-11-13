@@ -87,13 +87,13 @@ Prerequisites: `bun`, `just`, `jq`, `fzf`, `python3`, `git` (per-OS commands in 
 
 ```bash
 mkdir pagmas-descendant && cd pagmas-descendant && git init && git commit --allow-empty -m init
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.27 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.28 --squash
 bash forge/engine/scripts/init.sh          # the rare book: manifest, cellar, justfile, first render
 just forge status                          # one row per election, LIVE column says ok
 ```
 
-`init` writes `forge/elections.json` with one harness and one elected skill, copies the
-`hello` skill and the `shim` agent into your cellar, and renders them into `home/claude/`.
+`init` writes `forge/elections.json` with one harness, copies the starter set (below)
+into your cellar, and renders it into `home/claude/`.
 Point the harness at the bin trees once — `ln -s $PWD/home/claude/skills ~/.claude/skills`,
 same for `agents/` — and `/hello` exists in your next session. It never touches `~` itself.
 
@@ -113,6 +113,18 @@ this checkout renders the example in place.
 
 Supported: macOS and Linux. Windows natively through Git Bash is new in v0.1.19 and still
 being proven (`install/windows.md`); inside WSL2 it is the Linux install.
+
+### Starter set
+
+What a fresh descendant holds. It is copied once and is yours from then on: change it,
+version it, retire it.
+
+| Name | Kind | What it is for |
+|---|---|---|
+| `hello` | skill | the smoke test: one line that proves cellar, manifest and render work |
+| `systems-architect` | skill | takes a system, a document or a design apart into its working parts, how they act on each other, and one governing analogy. Tag the topic `understand`, `debug` or `audit`. Runs on the top tier. To run it in a subagent, spawn `sota` and name the skill |
+| `lightweight`, `workhorse`, `sota` | agents | nothing but a model tier: spawn one to run a prompt, or a named skill, on that tier. All three are one definition, `shim`, rendered under three names |
+| `lightweight-ro`, `workhorse-ro`, `sota-ro` | agents | the same three with the editing tools removed: they report and never change files |
 
 ## Layout of a descendant
 

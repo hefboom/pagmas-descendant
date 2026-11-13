@@ -1,5 +1,5 @@
 {
-  "engine": "v0.1.27",
+  "engine": "v0.1.28",
   "harnesses": {
     "claude-code": {
       "roots": {
@@ -39,11 +39,25 @@
         "shim": {
           "version": "v1.0.0",
           "variants": {
+            "lightweight": {
+              "tier": "lightweight"
+            },
+            "lightweight-ro": {
+              "tier": "lightweight",
+              "disallowedTools": "Edit, Write, NotebookEdit"
+            },
             "workhorse": {
               "tier": "workhorse"
             },
             "workhorse-ro": {
               "tier": "workhorse",
+              "disallowedTools": "Edit, Write, NotebookEdit"
+            },
+            "sota": {
+              "tier": "sota"
+            },
+            "sota-ro": {
+              "tier": "sota",
               "disallowedTools": "Edit, Write, NotebookEdit"
             }
           }
@@ -52,6 +66,9 @@
       "elections": {
         "global": {
           "hello": {
+            "version": "v1.0.0"
+          },
+          "systems-architect": {
             "version": "v1.0.0"
           }
         }

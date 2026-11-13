@@ -3,6 +3,12 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.28
+- The starter set grows. A fresh descendant now holds the `systems-architect` skill and all six tier agents: `lightweight`, `workhorse` and `sota`, each with a read-only `-ro` twin. Before, it held `hello` and two tier agents. `README.md` § Starter set says what each is for.
+- `UPDATE.md` offers new starter content to an existing descendant. A `bundle:` line names it, and nothing is added without a yes.
+- manifest: none.
+- bundle: skill `systems-architect`; variants of agent `shim`: `lightweight`, `lightweight-ro`, `sota`, `sota-ro`.
+
 ## v0.1.27
 - On Windows the install also stores `FORGE_ROOT` as a user variable, recorded on the ledger as `uservar`, and `UNINSTALL.md` removes it. Found live: Claude Code started from PowerShell runs its commands in a Git Bash that reads no startup file, so `FORGE_ROOT` was empty there, while a session started from a Git Bash window had it. The engine's own verbs were not affected, since they find the descendant by walking up; a skill that runs from another directory would have been.
 - manifest: none. Machine: on Windows, if the user variable `FORGE_ROOT` is not set, set it and add its `uservar` line to the ledger (`install/windows.md`, the `FORGE_ROOT` paragraph).
