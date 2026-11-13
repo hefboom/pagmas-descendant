@@ -16,6 +16,20 @@ one they already have, is a *descendant* of pagma: it carries the engine inside 
 takes its updates from it. That noun is the only coined word; the act has none, it is
 setting the repo up.
 
+## What to read
+
+This file is the whole install for a machine with nothing in the way. Each situation
+below has its own file in `install/`, next to this one. Read a file when its row applies,
+and only then:
+
+| When | Read | At |
+|---|---|---|
+| `uname -s` starts with `MINGW` or `MSYS` (Git Bash on Windows) | `install/windows.md` | before the plan |
+| one of `~/.claude/{skills,agents,tools}` is a real directory with content | `install/existing-folder.md` | before the plan, and again in step 4 |
+| bun or just has to come from its project's installer script | `install/installers.md` | before the plan, and again in step 1 |
+| the person picks "Explain first" | `install/explain.md` | then |
+| the machine has pagma but no ledger (uninstall, update) | `install/no-ledger.md` | before removing or updating anything |
+
 ## The ledger
 
 Everything this install puts on the machine is written down as it is created: one JSON
@@ -52,141 +66,15 @@ together with the tool. A `dep` line carries the command that undoes it:
 | the just installer | `installer` | `rm "$HOME/.local/bin/just"` |
 | winget (Windows) | `winget` | `winget uninstall --id <id> -e` |
 
-**A machine without one.** An install from before v0.1.11, or one done by hand, has no
-ledger. Build it by inspection with the same lines, and tell the person the list is
-inferred, not recorded:
-
-- `symlink`: each of `~/.claude/{skills,agents,tools}` that is a symlink into the descendant.
-- `aside`: each `~/.claude/{skills,agents,tools}.before-pagma` that exists.
-- `file`: `~/.config/pagma/env`, if it exists.
-- `line`: each of `~/.profile`, `~/.bashrc`, `~/.zprofile`, `~/.zshrc` that carries the source line (`grep -xF`).
-- `descendant`: its path. Ask whether the directory was the person's before pagma (`in_place`, step 2); `true` if unsure.
-- `dep`: inspection cannot tell who installed a tool. Ask which of the six the person installed for pagma and record those, `via` read from where `command -v` finds the binary. No answer, no `dep` lines.
-- `line` with `by: bun`, only if bun got a `dep` line through its installer: the lines that installer leaves in a startup file (`grep -n '^# bun$\|BUN_INSTALL' ~/.bashrc ~/.bash_profile ~/.zshrc`).
-
-## On Windows
-
-Skip this section unless `uname -s` starts with `MINGW` or `MSYS`: Git Bash, the shell
-that comes with Git for Windows and the one Claude Code runs its commands in. Inside WSL
-you are on Linux and nothing here applies.
-
-New in v0.1.19. One full install and one full uninstall have run on Windows 11; update
-and the interactive verbs have not run there yet, so report every mismatch. The steps and the
-ledger are the same, except:
-
-| Where | On Windows |
-|---|---|
-| Tools (step 1) | `winget`, one tool per command, `jq` first so the ledger can be written. No installer scripts, so the plan has no installer blocks. `git` is there already: Git Bash came with it |
-| `python3` | leave it alone and install none for pagma. The name may be a real Python or a Store alias that is not one, and the setup check only notes a missing one. `just forge edges` is untried on Windows |
-| `PATH` | winget puts each tool on the `PATH` itself, the user's or the machine's. The env file carries no `PATH` line, only `FORGE_ROOT` from step 2 |
-| Startup files | two files. The login file is the first that exists of `~/.bash_profile`, `~/.bash_login`, `~/.profile`: add the line to that one. Only when none of the three exists, create `~/.profile`. The second is `~/.bashrc`, created if absent |
-| Links (step 4) | never `ln -s`: unless Developer Mode is on, Git Bash copies the directory, reports success, and the copy goes stale at the next render. Make a junction, the directory link that needs no admin rights |
-| An existing `~/.claude/<dir>` | the same question and the same answers. If the `mv` that sets a directory aside is refused, the Claude app is holding it open: ask the person to close the app, then retry |
-| `just forge link <repo>` | refuses on Windows for now. Make that link by hand with the junction command below |
-| By hand | the interactive verbs run in a Git Bash window, not in PowerShell or cmd |
-
-**Tools.** `winget show` is the read-first step here. A download host other than the
-project's own is a stop. A permission prompt from Windows is the person's to answer.
-
-| Tool | id | Download host, when this was written |
-|---|---|---|
-| jq | `jqlang.jq` | `github.com/jqlang/jq` |
-| bun | `Oven-sh.Bun` | `github.com/oven-sh/bun` |
-| just | `Casey.Just` | `github.com/casey/just` |
-| fzf | `junegunn.fzf` | `github.com/junegunn/fzf` |
-
-```bash
-winget show    --id jqlang.jq -e --source winget --accept-source-agreements
-winget install --id jqlang.jq -e --source winget --accept-source-agreements --accept-package-agreements
-```
-
-The `dep` line records `via` as `winget` and `remove` as `winget uninstall --id <id> -e`.
-
-A program sees the new `PATH` only if it started after winget ran, and your session
-started before. Until the person restarts it from a new terminal, begin each later
-command with this line. It also replaces the fresh-shell check of step 1, which cannot
-pass before a restart because a child shell inherits the session's old `PATH`:
-
-```bash
-export PATH="$PATH:$(cygpath -u -p "$(powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('Path','Machine') + ';' + [Environment]::GetEnvironmentVariable('Path','User')" | tr -d '\r')")";
-```
-
-After step 2, `bash -lc 'echo "$FORGE_ROOT"'` prints the descendant's path.
-
-**The ledger.** Begin each ledger command with `export MSYS_NO_PATHCONV=1;`. Git Bash
-rewrites an argument that looks like a path before a Windows program such as jq sees it
-(`/c/Users/…` becomes `C:/Users/…`), and the ledger has to hold paths in the form
-`readlink` prints. Check: `MSYS_NO_PATHCONV=1 jq -nc --arg p "$HOME" '$p'` prints a path
-starting with `/c/`.
-
-**Links.** One junction per directory. The paths travel as environment variables, so a
-space in one needs no quoting:
-
-```bash
-PAGMA_LINK=$(cygpath -w "$HOME/.claude/skills") PAGMA_TARGET=$(cygpath -w "$PWD/home/claude/skills") \
-  powershell -NoProfile -Command 'New-Item -ItemType Junction -Path $env:PAGMA_LINK -Target $env:PAGMA_TARGET | Out-Null'
-readlink "$HOME/.claude/skills"
-```
-
-Git Bash sees a junction as a symlink: `[ -L ]` is true, `readlink` prints the target,
-and `rmdir` or a plain `rm` removes the link and leaves the target's contents where they are. So the
-step 4 check, the `symlink` ledger line and `UNINSTALL.md` work unchanged. Write the
-ledger line's `target` from what `readlink` printed, so uninstall compares like with
-like. Never `rm -r` a junction.
-
-**The plan.** Same labels, same order, these lines differ:
-
-```text
-Machine
-  system     Windows 11, Git Bash, winget
-
-Tools to install
-  jq         edits the manifest   winget jqlang.jq       I run it; if refused, you run it
-
-winget packages: shown, match the baseline
-  jq         from github.com/jqlang/jq
-
-Files pagma writes
-  ~/.config/pagma/env             new: FORGE_ROOT
-  ~/.profile                      new file, 1 line
-  ~/.bashrc                       new file, 1 line
-
-Links
-  ~/.claude/skills                junction to ~/pagmas-descendant/home/claude/skills
-```
-
 ## Before you change anything
 
 Look first and change nothing: which of the six tools in step 1 are missing (your
 before-list), which row of step 2 you are in, and whether `~/.claude/{skills,agents,tools}`
-exist. If bun or just will come from an installer script, fetch and read it now (step 1).
+exist. If bun or just will come from an installer script, fetch and read it now (`install/installers.md`).
 
 **An existing folder.** If one of `~/.claude/{skills,agents,tools}` is a real directory
-with content, settle it now, before the plan. pagma links each of the three as a whole,
-and render owns a linked directory completely: it deletes whatever no election accounts
-for. So what is there cannot stay in place. List what the directory holds, then ask, with
-these choices in this order:
-
-| Choice | What happens |
-|---|---|
-| **Adopt** (recommended) | the directory is set aside untouched. Each skill in it becomes `v1.0.0` in the hub and is elected, so the next session has it again. Then the directory is linked |
-| **Start clean** | the directory is set aside untouched, then linked. What was in it is no longer available to sessions |
-| **Do not link** | the directory stays as it is. The hub is built, but sessions do not see what it renders there |
-| **Stop** | no install. Nothing was changed |
-
-Set aside means renamed to `~/.claude/<dir>.before-pagma`, never deleted, and
-`UNINSTALL.md` puts it back: say so with the first two choices. Adopt exists for `skills`
-only; for `agents` and `tools` offer the other three. A directory that holds nothing but
-the Claude app's `synced/` folder has nothing to adopt: do not ask, plan to set it aside
-and carry `synced/` over (step 4). The plan's `Links` block shows each answer:
-
-```text
-Links
-  ~/.claude/skills                existing folder, set aside to ~/.claude/skills.before-pagma
-  adopted                         3 skills, each v1.0.0 in the hub: review, notes, deploy
-  carried over                    synced/, the Claude app's own skills
-  then linked                     to ~/pagmas-descendant/home/claude/skills
-```
+with content, settle it now, before the plan: read `install/existing-folder.md` and ask
+its question. The answer goes into the plan's `Links` block.
 
 Then show the person the plan in exactly this layout, filled in for this machine. It is
 read in a terminal, often inside a question box that renders no tables, so: one fact per
@@ -272,25 +160,9 @@ the last:
 | Choice | What you do |
 |---|---|
 | **Go ahead** (recommended) | start step 1 |
-| **Explain first** | ask which piece they want explained: one tool, one row of the plan, or all of it. Answer from the table below, in their terms and as briefly as it allows, then ask the four choices again. Do not repeat the plan; it is still above |
+| **Explain first** | ask which piece they want explained: one tool, one row of the plan, or all of it. Answer from `install/explain.md`, in their terms and as briefly as it allows, then ask the four choices again. Do not repeat the plan; it is still above |
 | **Change the plan** | a different directory for the descendant, or leave the rc lines to them (below). Show the changed plan and the four choices again |
 | **Stop** | change nothing, and say that nothing was changed |
-
-Why each piece is there. Explain from this, not from memory:
-
-| Piece | What pagma uses it for | Without it |
-|---|---|---|
-| `git` | mounts the engine inside the descendant as a subtree pinned to a tag; an update pulls the next tag | no install, no update |
-| `bun` | runs the renderer, the TypeScript that turns the manifest into the skill and agent files the harness reads | nothing renders |
-| `just` | the command runner: every verb (`just forge render`, `status`, `elect-exact`) is a recipe in the engine's justfile, which needs 1.31 for its syntax | no verbs |
-| `jq` | reads and edits the manifest `forge/elections.json` inside the verbs, and writes the ledger | no election can change |
-| `fzf` | the pickers in the interactive verbs (`view`, `elect`, `move`, `retire`, `discover`). Each is the hand-operated twin of a verb the agent runs (`show`, `elect-exact`, `move-exact`, …): the same engine, a picker in place of arguments. pagma is built to be driven by agents, and fzf is for the person: doing a step by hand once shows them what their agent can do | the agent's `-exact` verbs still work; the person loses the way to see and try them. Recommended, and the setup check asks for it |
-| `python3` | one read-only report, `just forge edges` | only that report stops; the setup check notes it and carries on |
-| `~/.config/pagma/env` | bun and just install outside the default `PATH`; this file puts them on it and records where the descendant is (`FORGE_ROOT`) | new shells find neither the tools nor the descendant |
-| the rc lines | one line per startup file that reads the env file; two files because login shells and the shells tools start read different ones | the env file is never read |
-| the ledger | the record uninstall walks, so removal is exact and can end on "nothing remains" | uninstall falls back to inspecting the machine |
-| the descendant | the hub: the one repo every skill and agent is managed from. It holds every version the person writes, the manifest of which version is live, and the engine mounted inside. A skill elected there is global, or aimed at one repo | nowhere for their skills to live, nothing to elect from |
-| the three links | the harness reads `~/.claude/…`, the engine renders inside the descendant; the links join the two | the harness sees no rendered skills |
 
 Shell startup files and `~/.claude` are the person's. A harness may refuse to touch them
 without the person's say-so, and it is right to: their "go ahead" on this plan is that
@@ -314,53 +186,13 @@ manager:
 | OS | Command |
 |---|---|
 | macOS (Homebrew) | `brew install bun just jq fzf python3` |
-| Debian / Ubuntu | `sudo apt-get update && sudo apt-get install -y git jq fzf python3` then bun and just below |
-| Fedora | `sudo dnf install -y git jq fzf python3 just` then bun below; check the just version |
-| Windows (Git Bash) | `winget`, one tool per command: § On Windows. Inside WSL2, use the Linux row |
+| Debian / Ubuntu | `sudo apt-get update && sudo apt-get install -y git jq fzf python3` then bun and just from their installer scripts |
+| Fedora | `sudo dnf install -y git jq fzf python3 just` then bun from its installer script; check the just version |
+| Windows (Git Bash) | `winget`, one tool per command: `install/windows.md`. Inside WSL2, use the Linux row |
 
 bun (when the package manager has no package for it) and just (when the package manager's
 is missing or below 1.31) come from their projects' installer scripts. Never pipe one into
-a shell unread. Fetch it to a file while you are still looking, read all of it, and later
-run that same file. This is how an installer is run here, not a second attempt after a
-refusal. Note the directory's path; shell variables do not survive between your commands:
-
-```bash
-d=$(mktemp -d); echo "$d"
-curl -fsSL https://bun.sh/install -o "$d/bun-install.sh"
-curl -sSf https://just.systems/install.sh -o "$d/just-install.sh"
-```
-
-Answer four questions from each script itself, and put the answers in the plan:
-
-| Question | bun's script, when this was written | just's script, when this was written |
-|---|---|---|
-| What does it download, and from where? | one release zip from `github.com/oven-sh/bun` | one release archive from `github.com/casey/just`, after asking `api.github.com` for the newest tag |
-| Where does it write? | `~/.bun/bin/bun` | one binary in the `--to` directory |
-| Does it edit shell startup files? | yes: it appends `# bun` and two `export` lines to the first writable of `~/.bash_profile`, `~/.bashrc` (bash), or to `~/.zshrc` (zsh) | no |
-| Does it ask for root, or run what it downloaded? | no root; it runs the new `bun` once to place shell completions | neither |
-
-The two right-hand columns are a baseline, not the answer: report what you read. A
-different host, a `sudo`, a write outside the home directory, or code you cannot follow is
-a stop: do not run it, and show the person what you found. Reading the script tells you
-what the script does, not what is inside the binary it fetches. That trust rests on the
-project and its release host; say so if the person asks.
-
-Run each from the file you read. Take a marker and a copy of the startup files first, so
-whatever the installer leaves behind can go on the ledger:
-
-```bash
-touch "$d/marker"; for f in .profile .bash_profile .bashrc .zprofile .zshrc; do [ -f "$HOME/$f" ] && cp "$HOME/$f" "$d/before$f"; done
-bash "$d/bun-install.sh"
-bash "$d/just-install.sh" --to "$HOME/.local/bin"
-# lines an installer added to a startup file:
-for f in .profile .bash_profile .bashrc .zprofile .zshrc; do [ -f "$d/before$f" ] && diff "$d/before$f" "$HOME/$f" | sed -n 's/^> //p'; done
-# files it left outside its own directory:
-find "$HOME" -maxdepth 5 -type f -newer "$d/marker" -not -path "$HOME/.bun/*" -not -path "$HOME/.claude/*" -not -path "$HOME/.cache/*" -not -path "$HOME/Library/*"
-```
-
-If your harness refuses to run an installer, do not work around it: hand the person that
-same command, `bash <the file you read>`, together with your four answers, so they know
-what they are running. Continue once the version check passes.
+a shell unread: `install/installers.md` says how each is fetched, read and run.
 
 Both land outside the default `PATH`. pagma owns one shell file for that and for the
 descendant's location, sourced by one guarded line per rc file — the rustup pattern
@@ -414,10 +246,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.23 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.24 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.23`.
+Check: `cat forge/engine/VERSION` prints `0.1.24`.
 
 Now record the descendant's location: append `export FORGE_ROOT="<absolute path of the
 descendant>"` to `~/.config/pagma/env` (replace an existing `FORGE_ROOT` line), and export
@@ -447,37 +279,7 @@ creates all three roots, empty or not). For each:
 - `~/.claude/<dir>` does not exist → `ln -s "$PWD/home/claude/<dir>" ~/.claude/<dir>`
 - it is a real directory and empty → `rmdir ~/.claude/<dir>`, which refuses a directory with content, then link as above
 - it is already a symlink → read its target, show the person, ask before repointing
-- it is a real directory with content → the person answered this before the plan ("An existing folder"). Act on that answer, below. Never delete or overwrite what is there.
-
-**Set aside** (the answers *Adopt* and *Start clean*). Rename the directory, record it,
-then link as in the first case:
-
-```bash
-mv "$HOME/.claude/skills" "$HOME/.claude/skills.before-pagma"
-jq -nc --arg p "$HOME/.claude/skills" --arg k "$HOME/.claude/skills.before-pagma" '{kind:"aside",path:$p,kept:$k}' >> "$L"
-```
-
-If the `.before-pagma` name is taken, stop and show the person. A `synced/` folder inside
-is the Claude app's, which writes it and keeps it current. Copy it into the linked
-directory so the app's built-in skills stay available:
-`cp -R "$HOME/.claude/skills.before-pagma/synced" "$HOME/.claude/skills/synced"`. The
-manifest exempts that name from render's cleanup (`unmanaged`).
-
-**Adopt** (skills only). For each entry of the set-aside directory except `synced`:
-
-- a directory holding a `SKILL.md`, under a name the cellar does not have yet →
-  `cp -R "<set-aside>/<name>" "forge/skills/global/<name>/v1.0.0"`, then
-  `just forge elect-exact claude-code/global/<name> v1.0.0`
-- anything else (a loose file, a directory without `SKILL.md`, a link, a name already in
-  the cellar) → not adopted. It stays in the set-aside directory; list it for the person.
-
-An adopted skill changes in two ways. Tell the person both:
-
-- it now runs on the hub's default tier (`workhorse` in the template: sonnet, high effort) unless its file has a `tier:` line. Before, it ran on the session's model. `just forge tier-exact claude-code/global/<name> <tier>` sets it per skill.
-- render refuses a `SKILL.md` whose frontmatter names a `model:`. In the cellar copy, replace that line with the tier of its class (`haiku` → `lightweight`, `sonnet` → `workhorse`, `opus` → `sota`). The set-aside original is untouched.
-
-**Do not link.** Leave the directory alone and write no `symlink` line for it. The hub is
-built and renders; sessions do not see that directory's output until it is linked.
+- it is a real directory with content → the person answered this before the plan ("An existing folder"). Act on that answer as `install/existing-folder.md` says. Never delete or overwrite what is there.
 
 Check: `readlink ~/.claude/skills` prints a path ending in `home/claude/skills`.
 
