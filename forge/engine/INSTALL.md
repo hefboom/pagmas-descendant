@@ -40,10 +40,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.1 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.2 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.1`.
+Check: `cat forge/engine/VERSION` prints `0.1.2`.
 
 ## 3. Build
 

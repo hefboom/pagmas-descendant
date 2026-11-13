@@ -55,8 +55,9 @@ mounts the engine, scaffolds the descendant, links the harness and reports. Noth
 touches your `~/.claude` without asking when something is already there.
 
 **Without one**, start from the template: [github.com/hefboom/pagma-descendant](https://github.com/hefboom/pagma-descendant)
-→ *Use this template* → clone it. It is a descendant with the engine already mounted;
-then `just forge install && just forge render` and the one symlink below.
+→ *Use this template* → clone it. It is a descendant with the engine already mounted
+and `/pagma-install` committed in `.claude/skills/`, so in Claude Code the install is
+that one command; other agents find the same pointer in `AGENTS.md`.
 
 <details>
 <summary>The steps by hand</summary>
@@ -65,7 +66,7 @@ Prerequisites: `bun`, `just`, `jq`, `fzf`, `python3`, `git` (per-OS commands in 
 
 ```bash
 mkdir my-prompts && cd my-prompts && git init && git commit --allow-empty -m init
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.1 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.2 --squash
 bash forge/engine/scripts/init.sh          # the rare book: manifest, cellar, justfile, first render
 just forge status                          # one row per election, LIVE column says ok
 ```
