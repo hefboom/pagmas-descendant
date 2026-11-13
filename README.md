@@ -50,6 +50,10 @@ shell). Open it in the directory that should hold your prompts, empty or not, an
 Install pagma here: read and follow https://github.com/hefboom/pagma/blob/main/INSTALL.md
 ```
 
+Or clone this repo and type `/pagma-install` in Claude Code inside it; it asks where
+your descendant should live, builds it there, and tells you when the clone can go. The
+clone is a bootstrap, not a place to work: nothing runs from the engine's own checkout.
+
 [`INSTALL.md`](./INSTALL.md) is written for the agent: it installs what is missing,
 mounts the engine, scaffolds the descendant, links the harness and reports. Nothing in it
 touches your `~/.claude` without asking when something is already there.
@@ -66,7 +70,7 @@ Prerequisites: `bun`, `just`, `jq`, `fzf`, `python3`, `git` (per-OS commands in 
 
 ```bash
 mkdir my-prompts && cd my-prompts && git init && git commit --allow-empty -m init
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.9 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.10 --squash
 bash forge/engine/scripts/init.sh          # the rare book: manifest, cellar, justfile, first render
 just forge status                          # one row per election, LIVE column says ok
 ```
