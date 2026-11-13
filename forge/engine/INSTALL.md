@@ -68,7 +68,15 @@ Then show the person the plan as one list:
 | the descendant | its directory; in the bootstrap row of step 2, ask where it should live as part of this question, and not again later |
 | three links | `~/.claude/{skills,agents,tools}`, pointing into the descendant |
 
-Under the plan, offer the same four choices on every machine, in this order and in these
+Close the plan by saying what happens once they agree, in order and in plain words, five
+sentences at most, so the person agrees to a sequence and not to a table:
+
+1. what you will run yourself, start to finish
+2. where you will stop and hand them a command: an installer the harness will not run, a `sudo` you do not have
+3. what the machine has at the end: the tools, the descendant at its path, `/hello` in a new session
+4. that every item goes on the ledger, and `/pagma-uninstall` takes all of it back
+
+Under that, offer the same four choices on every machine, in this order and in these
 words. The question comes back after the middle two, until the person picks the first or
 the last:
 
@@ -215,10 +223,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.14 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.15 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.14`.
+Check: `cat forge/engine/VERSION` prints `0.1.15`.
 
 Now record the descendant's location: append `export FORGE_ROOT="<absolute path of the
 descendant>"` to `~/.config/pagma/env` (replace an existing `FORGE_ROOT` line), and export
