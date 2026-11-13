@@ -50,6 +50,18 @@ entry=$(jq -c --arg l "$label" '
   (.agents[] | select(.label == $l) | {kind: "agent", harness,        name, version, versions, yanked, variant})
 ' "$JSON")
 
+# First election: a skill that sits in the cellar but is not in the manifest yet is
+# absent from the dump. Address it by its path instead: <harness>/<scope>/<name>, with
+# the scope a declared root and skills/<scope>/<name>/<version>/SKILL.md present.
+if [[ -z "$entry" && $tiermode -eq 0 && $variantmode -eq 0 ]]; then
+  IFS=/ read -r h s n extra <<<"$label"
+  if [[ -n ${n:-} && -z ${extra:-} && -f "skills/$s/$n/$version/SKILL.md" ]] &&
+    jq -e --arg h "$h" --arg s "$s" '.harnesses[$h].roots[$s] // empty' "$MANIFEST" >/dev/null; then
+    entry=$(jq -nc --arg h "$h" --arg s "$s" --arg n "$n" --arg v "$version" \
+      '{kind: "skill", harness: $h, scope: $s, name: $n, version: "none", versions: [$v], yanked: []}')
+  fi
+fi
+
 if [[ -z "$entry" ]]; then
   echo "unknown label \"$label\"" >&2
   near=$(jq -r '.skills[].label, .tools[].label, .partials[].label, .agents[].label' "$JSON" | grep -F -- "${label##*/}" || true)

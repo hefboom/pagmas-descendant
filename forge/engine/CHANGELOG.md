@@ -3,6 +3,12 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.22
+- An existing `~/.claude/skills` is settled before the plan, with four fixed choices: adopt (each skill becomes `v1.0.0` in the hub and is elected), start clean, do not link, stop. In the first two the directory is set aside as `~/.claude/skills.before-pagma`, never deleted, recorded on the ledger as `aside`, and `UNINSTALL.md` puts it back. Linking skill by skill is gone: a linked directory is the rendered output, and links nobody keeps current break that.
+- The Claude app's `synced/` folder is carried into the linked directory, and the template manifest exempts it from render's cleanup. Before, a render deleted it.
+- `elect-exact` gives a skill its first election. A skill that was in the cellar but not yet in the manifest was refused as an unknown label, so the authoring loop `INSTALL.md` ends on could not work for a new name. Found while testing adopt.
+- manifest: `.harnesses["claude-code"].unmanaged.global += ["synced"]`, creating `unmanaged` if it is absent. Without it, render deletes the Claude app's built-in skills from a linked skills directory.
+
 ## v0.1.21
 - `UNINSTALL.md` after the first Windows uninstall (every entry removed, closing line handed over). winget tools are checked with `winget list`: `command -v`, in a session older than the install, had reported all four as already gone. Junctions are removed with `rmdir`, named as the command; before, the file only warned against `rm -r`. A `~/.bun` left behind when bun goes through a package manager is offered for removal.
 - manifest: none.

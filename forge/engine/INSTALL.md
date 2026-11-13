@@ -26,7 +26,7 @@ removes exactly what pagma added and can say when nothing is left. Two rules:
   already in an rc file, a link that already pointed here: no line. Uninstall never offers
   to remove what is not on the ledger.
 - Record it right after creating it, with `jq -nc` so no quoting is done by hand. There are
-  six kinds; each step below says when its line is written:
+  seven kinds; each step below says when its line is written:
 
 ```bash
 L="$HOME/.config/pagma/ledger.jsonl"; mkdir -p "$(dirname "$L")"
@@ -36,6 +36,7 @@ jq -nc --arg f "$HOME/.profile" --arg t '[ -f "$HOME/.config/pagma/env" ] && . "
 jq -nc --arg p "<clone path>" '{kind:"clone",path:$p}' >> "$L"
 jq -nc --arg p "<descendant path>" --argjson i false '{kind:"descendant",path:$p,in_place:$i}' >> "$L"
 jq -nc --arg p "$HOME/.claude/skills" --arg t "<descendant path>/home/claude/skills" '{kind:"symlink",path:$p,target:$t}' >> "$L"
+jq -nc --arg p "$HOME/.claude/skills" --arg k "$HOME/.claude/skills.before-pagma" '{kind:"aside",path:$p,kept:$k}' >> "$L"
 ```
 
 Paths are absolute. A `line` or `file` entry for something a tool's own installer left
@@ -56,6 +57,7 @@ ledger. Build it by inspection with the same lines, and tell the person the list
 inferred, not recorded:
 
 - `symlink`: each of `~/.claude/{skills,agents,tools}` that is a symlink into the descendant.
+- `aside`: each `~/.claude/{skills,agents,tools}.before-pagma` that exists.
 - `file`: `~/.config/pagma/env`, if it exists.
 - `line`: each of `~/.profile`, `~/.bashrc`, `~/.zprofile`, `~/.zshrc` that carries the source line (`grep -xF`).
 - `descendant`: its path. Ask whether the directory was the person's before pagma (`in_place`, step 2); `true` if unsure.
@@ -79,7 +81,7 @@ ledger are the same, except:
 | `PATH` | winget puts each tool on the `PATH` itself, the user's or the machine's. The env file carries no `PATH` line, only `FORGE_ROOT` from step 2 |
 | Startup files | two files. The login file is the first that exists of `~/.bash_profile`, `~/.bash_login`, `~/.profile`: add the line to that one. Only when none of the three exists, create `~/.profile`. The second is `~/.bashrc`, created if absent |
 | Links (step 4) | never `ln -s`: unless Developer Mode is on, Git Bash copies the directory, reports success, and the copy goes stale at the next render. Make a junction, the directory link that needs no admin rights |
-| An existing `~/.claude/<dir>` | step 4's cases hold. A junction links a whole directory, never a single file, so linking per item works for skills, which are directories, and not for agents, which are files: offer to move those into the cellar, or to leave that directory unlinked |
+| An existing `~/.claude/<dir>` | the same question and the same answers. If the `mv` that sets a directory aside is refused, the Claude app is holding it open: ask the person to close the app, then retry |
 | `just forge link <repo>` | refuses on Windows for now. Make that link by hand with the junction command below |
 | By hand | the interactive verbs run in a Git Bash window, not in PowerShell or cmd |
 
@@ -158,6 +160,33 @@ Links
 Look first and change nothing: which of the six tools in step 1 are missing (your
 before-list), which row of step 2 you are in, and whether `~/.claude/{skills,agents,tools}`
 exist. If bun or just will come from an installer script, fetch and read it now (step 1).
+
+**An existing folder.** If one of `~/.claude/{skills,agents,tools}` is a real directory
+with content, settle it now, before the plan. pagma links each of the three as a whole,
+and render owns a linked directory completely: it deletes whatever no election accounts
+for. So what is there cannot stay in place. List what the directory holds, then ask, with
+these choices in this order:
+
+| Choice | What happens |
+|---|---|
+| **Adopt** (recommended) | the directory is set aside untouched. Each skill in it becomes `v1.0.0` in the hub and is elected, so the next session has it again. Then the directory is linked |
+| **Start clean** | the directory is set aside untouched, then linked. What was in it is no longer available to sessions |
+| **Do not link** | the directory stays as it is. The hub is built, but sessions do not see what it renders there |
+| **Stop** | no install. Nothing was changed |
+
+Set aside means renamed to `~/.claude/<dir>.before-pagma`, never deleted, and
+`UNINSTALL.md` puts it back: say so with the first two choices. Adopt exists for `skills`
+only; for `agents` and `tools` offer the other three. A directory that holds nothing but
+the Claude app's `synced/` folder has nothing to adopt: do not ask, plan to set it aside
+and carry `synced/` over (step 4). The plan's `Links` block shows each answer:
+
+```text
+Links
+  ~/.claude/skills                existing folder, set aside to ~/.claude/skills.before-pagma
+  adopted                         3 skills, each v1.0.0 in the hub: review, notes, deploy
+  carried over                    synced/, the Claude app's own skills
+  then linked                     to ~/pagmas-descendant/home/claude/skills
+```
 
 Then show the person the plan in exactly this layout, filled in for this machine. It is
 read in a terminal, often inside a question box that renders no tables, so: one fact per
@@ -373,10 +402,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.21 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.22 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.21`.
+Check: `cat forge/engine/VERSION` prints `0.1.22`.
 
 Now record the descendant's location: append `export FORGE_ROOT="<absolute path of the
 descendant>"` to `~/.config/pagma/env` (replace an existing `FORGE_ROOT` line), and export
@@ -406,16 +435,39 @@ creates all three roots, empty or not). For each:
 - `~/.claude/<dir>` does not exist → `ln -s "$PWD/home/claude/<dir>" ~/.claude/<dir>`
 - it is a real directory and empty → `rmdir ~/.claude/<dir>`, which refuses a directory with content, then link as above
 - it is already a symlink → read its target, show the person, ask before repointing
-- it is a real directory with content → **stop and ask**. Do not delete or overwrite anything. What to offer depends on the content:
-  - skills the person placed by hand: move them into the cellar (one `forge/skills/global/<name>/v1.0.0/` each, then elect), or leave the directory and link per skill
-  - only a `synced/` folder: the Claude app writes that one and keeps it current, so it is not the person's to move. Leave the directory and link per skill
+- it is a real directory with content → the person answered this before the plan ("An existing folder"). Act on that answer, below. Never delete or overwrite what is there.
 
-Linking per skill: one link for each directory under `home/claude/skills/`, placed at
-`~/.claude/skills/<name>`, each with its own `symlink` ledger line. Tell the person that a
-skill elected later needs its own link, made the same way.
+**Set aside** (the answers *Adopt* and *Start clean*). Rename the directory, record it,
+then link as in the first case:
 
-Check: `readlink ~/.claude/skills` prints a path ending in `home/claude/skills`, or per
-skill, `readlink ~/.claude/skills/hello` one ending in `home/claude/skills/hello`.
+```bash
+mv "$HOME/.claude/skills" "$HOME/.claude/skills.before-pagma"
+jq -nc --arg p "$HOME/.claude/skills" --arg k "$HOME/.claude/skills.before-pagma" '{kind:"aside",path:$p,kept:$k}' >> "$L"
+```
+
+If the `.before-pagma` name is taken, stop and show the person. A `synced/` folder inside
+is the Claude app's, which writes it and keeps it current. Copy it into the linked
+directory so the app's built-in skills stay available:
+`cp -R "$HOME/.claude/skills.before-pagma/synced" "$HOME/.claude/skills/synced"`. The
+manifest exempts that name from render's cleanup (`unmanaged`).
+
+**Adopt** (skills only). For each entry of the set-aside directory except `synced`:
+
+- a directory holding a `SKILL.md`, under a name the cellar does not have yet →
+  `cp -R "<set-aside>/<name>" "forge/skills/global/<name>/v1.0.0"`, then
+  `just forge elect-exact claude-code/global/<name> v1.0.0`
+- anything else (a loose file, a directory without `SKILL.md`, a link, a name already in
+  the cellar) → not adopted. It stays in the set-aside directory; list it for the person.
+
+An adopted skill changes in two ways. Tell the person both:
+
+- it now runs on the hub's default tier (`workhorse` in the template: sonnet, high effort) unless its file has a `tier:` line. Before, it ran on the session's model. `just forge tier-exact claude-code/global/<name> <tier>` sets it per skill.
+- render refuses a `SKILL.md` whose frontmatter names a `model:`. In the cellar copy, replace that line with the tier of its class (`haiku` → `lightweight`, `sonnet` → `workhorse`, `opus` → `sota`). The set-aside original is untouched.
+
+**Do not link.** Leave the directory alone and write no `symlink` line for it. The hub is
+built and renders; sessions do not see that directory's output until it is linked.
+
+Check: `readlink ~/.claude/skills` prints a path ending in `home/claude/skills`.
 
 Ledger: a `symlink` line for each link you created. If you repointed an existing link, add
 its old target as `replaced` (`--arg w "<old target>"`, `replaced:$w`), so uninstall can
