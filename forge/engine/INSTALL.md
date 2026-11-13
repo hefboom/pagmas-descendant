@@ -32,6 +32,7 @@ Decide which case you are in by looking at the current directory:
 
 | You see | Case | Do |
 |---|---|---|
+| `VERSION` and `scripts/render.ts` in the directory itself, origin `hefboom/pagma` | a clone of the engine repo, not a descendant | do not mount the engine into itself; ask for a directory for the descendant (suggest a sibling such as `../prompts`), `cd` there, continue with the row that matches it |
 | `forge/elections.json` and `forge/engine/VERSION` | an existing descendant (a clone of a template, or a second machine) | nothing here, go to step 3 |
 | `forge/engine/VERSION` but no `forge/elections.json` | engine mounted, not yet scaffolded | `bash forge/engine/scripts/init.sh`, go to step 4 |
 | neither, inside a git repo | a repo that should become a descendant | mount the engine (below), then `init.sh` |
@@ -40,10 +41,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.2 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.3 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.2`.
+Check: `cat forge/engine/VERSION` prints `0.1.3`.
 
 ## 3. Build
 
