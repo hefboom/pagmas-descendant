@@ -3,6 +3,10 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.27
+- On Windows the install also stores `FORGE_ROOT` as a user variable, recorded on the ledger as `uservar`, and `UNINSTALL.md` removes it. Found live: Claude Code started from PowerShell runs its commands in a Git Bash that reads no startup file, so `FORGE_ROOT` was empty there, while a session started from a Git Bash window had it. The engine's own verbs were not affected, since they find the descendant by walking up; a skill that runs from another directory would have been.
+- manifest: none. Machine: on Windows, if the user variable `FORGE_ROOT` is not set, set it and add its `uservar` line to the ledger (`install/windows.md`, the `FORGE_ROOT` paragraph).
+
 ## v0.1.26
 - `install/explain.md` has a block for the manifest: what the file is, that rendering writes exactly what it lists, and how it is changed. Before, the word appeared in three other blocks and was explained in none.
 - manifest: none.

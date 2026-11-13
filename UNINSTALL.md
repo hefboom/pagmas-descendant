@@ -80,6 +80,20 @@ Check: the `grep -cxF` above now prints 0 for each rc file, and the env file is 
 bun and just leave `PATH` in new shells from here on; the current shell keeps them until
 it closes.
 
+On Windows there may be a `uservar` entry too: the user variable `FORGE_ROOT`. Read it:
+
+```bash
+powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('FORGE_ROOT','User')" | tr -d '\r'
+```
+
+It prints the entry's `value`: pagma's, list it with the others, and on yes remove it
+with the line below, then check the read prints nothing. It prints nothing: already
+gone. It prints something else: changed, left.
+
+```bash
+powershell -NoProfile -Command "[Environment]::SetEnvironmentVariable('FORGE_ROOT', \$null, 'User')"
+```
+
 ## 4. The dependencies
 
 Only the `dep` entries: tools that were missing before the install and that it added. A
@@ -150,7 +164,7 @@ removal and commits it themselves.
 ## 7. Close the ledger
 
 Check every entry once more against its final state: links absent, env file absent, rc
-lines at count 0, removed tools no longer resolving (winget: no longer listed), removed
+lines at count 0, the user variable empty (Windows), removed tools no longer resolving (winget: no longer listed), removed
 directories absent.
 
 The ledger ends holding exactly what pagma still has on the machine. A dependency or a

@@ -16,6 +16,7 @@ ledger are the same, except:
 | Tools (step 1) | `winget`, one tool per command, `jq` first so the ledger can be written. No installer scripts, so the plan has no installer blocks. `git` is there already: Git Bash came with it |
 | `python3` | leave it alone and install none for pagma. The name may be a real Python or a Store alias that is not one, and the setup check only notes a missing one. `just forge edges` is untried on Windows |
 | `PATH` | winget puts each tool on the `PATH` itself, the user's or the machine's. The env file carries no `PATH` line, only `FORGE_ROOT` from step 2 |
+| `FORGE_ROOT` (step 2) | the env file, and a Windows user variable as well (below). Claude Code started from PowerShell or cmd runs its commands in a Git Bash that reads no startup file, so the env file alone never reaches it |
 | Startup files | two files. The login file is the first that exists of `~/.bash_profile`, `~/.bash_login`, `~/.profile`: add the line to that one. Only when none of the three exists, create `~/.profile`. The second is `~/.bashrc`, created if absent |
 | Links (step 4) | never `ln -s`: unless Developer Mode is on, Git Bash copies the directory, reports success, and the copy goes stale at the next render. Make a junction, the directory link that needs no admin rights |
 | An existing `~/.claude/<dir>` | the same question and the same answers (`existing-folder.md`). If the `mv` that sets a directory aside is refused, the Claude app is holding it open: ask the person to close the app, then retry |
@@ -49,6 +50,27 @@ export PATH="$PATH:$(cygpath -u -p "$(powershell -NoProfile -Command "[Environme
 ```
 
 After step 2, `bash -lc 'echo "$FORGE_ROOT"'` prints the descendant's path.
+
+**`FORGE_ROOT`.** In step 2, after the line in the env file, store the same location as
+a user variable: every program started afterwards inherits it, whichever terminal
+started it. Read it first. If it is already set to another directory, ask before
+replacing it. The path travels as an environment variable, in the `C:/…` form that Git
+Bash, bun and PowerShell all read:
+
+```bash
+powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('FORGE_ROOT','User')" | tr -d '\r'
+PAGMA_ROOT=$(cygpath -m "<descendant path>") \
+  powershell -NoProfile -Command "[Environment]::SetEnvironmentVariable('FORGE_ROOT', \$env:PAGMA_ROOT, 'User')"
+```
+
+Check: the first command now prints the `C:/…` path. Your own session started before
+this and will not see the variable: a session started from a new terminal window does.
+
+Ledger, an eighth kind that only Windows has, written if this run set the variable:
+
+```bash
+export MSYS_NO_PATHCONV=1; jq -nc --arg n FORGE_ROOT --arg v "<the C:/… path, as printed>" '{kind:"uservar",name:$n,value:$v}' >> "$L"
+```
 
 **The ledger.** Begin each ledger command with `export MSYS_NO_PATHCONV=1;`. Git Bash
 rewrites an argument that looks like a path before a Windows program such as jq sees it
@@ -87,6 +109,7 @@ Files pagma writes
   ~/.config/pagma/env             new: FORGE_ROOT
   ~/.profile                      new file, 1 line
   ~/.bashrc                       new file, 1 line
+  user variable FORGE_ROOT        new: where the hub is, for every terminal
 
 Links
   ~/.claude/skills                junction to ~/pagmas-descendant/home/claude/skills

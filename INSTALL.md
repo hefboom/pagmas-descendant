@@ -40,7 +40,7 @@ removes exactly what pagma added and can say when nothing is left. Two rules:
   already in an rc file, a link that already pointed here: no line. Uninstall never offers
   to remove what is not on the ledger.
 - Record it right after creating it, with `jq -nc` so no quoting is done by hand. There are
-  seven kinds; each step below says when its line is written:
+  seven kinds, and an eighth on Windows (`install/windows.md`); each step below says when its line is written:
 
 ```bash
 L="$HOME/.config/pagma/ledger.jsonl"; mkdir -p "$(dirname "$L")"
@@ -246,10 +246,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.26 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.27 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.26`.
+Check: `cat forge/engine/VERSION` prints `0.1.27`.
 
 Now record the descendant's location: append `export FORGE_ROOT="<absolute path of the
 descendant>"` to `~/.config/pagma/env` (replace an existing `FORGE_ROOT` line), and export
