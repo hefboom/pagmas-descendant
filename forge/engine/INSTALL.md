@@ -57,24 +57,69 @@ inferred, not recorded:
 Look first and change nothing: which of the six tools in step 1 are missing (your
 before-list), which row of step 2 you are in, and whether `~/.claude/{skills,agents,tools}`
 exist. If bun or just will come from an installer script, fetch and read it now (step 1).
-Then show the person the plan as one list:
 
-| What | Where |
-|---|---|
-| tools to install | the missing ones; for each installer script, the four answers from reading it (step 1); and which of them the person may have to run themselves |
-| a shell file | `~/.config/pagma/env`, new |
-| one line that sources it | added to `~/.profile` and the top of `~/.bashrc` (`~/.zprofile` and `~/.zshrc` on macOS); show the line |
-| the ledger | `~/.config/pagma/ledger.jsonl`, the record of everything on this list |
-| the descendant | its directory; in the bootstrap row of step 2, ask where it should live as part of this question, and not again later |
-| three links | `~/.claude/{skills,agents,tools}`, pointing into the descendant |
+Then show the person the plan in exactly this layout, filled in for this machine. It is
+read in a terminal, often inside a question box that renders no tables, so: one fact per
+line, a label with indented lines under it, columns lined up with spaces, nothing that
+runs past its line, no paragraphs. Leave out a block that does not apply (no installer
+block when the package manager has the tool):
 
-Close the plan by saying what happens once they agree, in order and in plain words, five
-sentences at most, so the person agrees to a sequence and not to a table:
+```text
+PLAN: nothing has been changed yet
 
-1. what you will run yourself, start to finish
-2. where you will stop and hand them a command: an installer the harness will not run, a `sudo` you do not have
-3. what the machine has at the end: the tools, the descendant at its path, `/hello` in a new session
-4. that every item goes on the ledger, and `/pagma-uninstall` takes all of it back
+Machine
+  system     Ubuntu 24.04, apt, sudo works
+  present    git, jq, python3
+  missing    bun, just, fzf
+
+Tools to install
+  fzf        apt package          I run it
+  bun        installer script     I run it; if refused, you run it
+  just       installer script     I run it; if refused, you run it
+
+bun installer: read in full, matches the baseline
+  downloads  one zip from github.com/oven-sh/bun
+  writes     ~/.bun/bin/bun
+  rc edits   3 lines appended to ~/.bashrc
+  root       no
+  also       runs the new bun once for completions
+
+just installer: read in full, matches the baseline
+  downloads  one archive from github.com/casey/just
+  writes     ~/.local/bin/just
+  rc edits   none
+  root       no
+
+Files pagma writes
+  ~/.config/pagma/env             new: PATH for bun and just, FORGE_ROOT
+  ~/.profile                      1 line added
+  ~/.bashrc                       1 line added, at the top
+  the line                        [ -f "$HOME/.config/pagma/env" ] && . "$HOME/.config/pagma/env"
+  ~/.config/pagma/ledger.jsonl    new: the record of everything in this plan
+
+Descendant
+  ~/prompts                       new git repo, engine <version> at forge/engine/
+
+Links
+  ~/.claude/skills                to ~/prompts/home/claude/skills
+  ~/.claude/agents                to ~/prompts/home/claude/agents
+  ~/.claude/tools                 to ~/prompts/home/claude/tools
+
+When you say go ahead
+  step 1     I install fzf, bun, just
+  step 2     I write the env file and the two rc lines
+  step 3     I create ~/prompts, mount the engine, build, render
+  step 4     I link the three directories and run the two checks
+  stops      only if a step is refused or needs your hand
+  result     six tools, ~/prompts, /hello in a new session
+  undo       /pagma-uninstall removes every item on the ledger
+```
+
+The values are an example; the labels and their order are fixed. A script that does not
+match the baseline says so on its header line, with each difference on its own line under
+it. In the bootstrap row of step 2 the descendant line shows the suggested directory, and
+"Change the plan" below is where the person moves it: do not ask about it again later.
+The same one-fact-per-line rule holds for what you say under "Explain first".
 
 Under that, offer the same four choices on every machine, in this order and in these
 words. The question comes back after the middle two, until the person picks the first or
@@ -223,10 +268,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.15 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.16 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.15`.
+Check: `cat forge/engine/VERSION` prints `0.1.16`.
 
 Now record the descendant's location: append `export FORGE_ROOT="<absolute path of the
 descendant>"` to `~/.config/pagma/env` (replace an existing `FORGE_ROOT` line), and export

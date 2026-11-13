@@ -3,6 +3,9 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.16
+- The plan has a fixed layout: one fact per line, a label with indented lines under it, columns lined up with spaces, no paragraphs. `INSTALL.md` carries the template. Found live: the plan arrived as prose inside a question box and could not be scanned.
+
 ## v0.1.15
 - The plan ends with what happens on "go ahead": at most five plain sentences, in order — what the agent runs, where it will hand the person a command, what the machine has at the end, and that `/pagma-uninstall` takes all of it back.
 
