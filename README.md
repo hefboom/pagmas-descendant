@@ -66,7 +66,7 @@ Prerequisites: `bun`, `just`, `jq`, `fzf`, `python3`, `git` (per-OS commands in 
 
 ```bash
 mkdir my-prompts && cd my-prompts && git init && git commit --allow-empty -m init
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.5 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.6 --squash
 bash forge/engine/scripts/init.sh          # the rare book: manifest, cellar, justfile, first render
 just forge status                          # one row per election, LIVE column says ok
 ```
@@ -119,13 +119,20 @@ nowhere. Pick the verb lexicon up from `just forge` (grouped) or `just forge all
 
 ## Upgrading the engine
 
+With an agent, in the descendant: `/pagma-update` in Claude Code, or paste
+`Upgrade pagma here: read and follow https://github.com/hefboom/pagma/blob/main/UPDATE.md`.
+It shows the changelog between your pin and the newest tag, asks, then pulls, re-pins,
+applies each version's `manifest:` step and runs the gate. By hand:
+
 ```bash
 git subtree pull --prefix forge/engine https://github.com/hefboom/pagma.git v0.2.0 --squash
-jq '.engine = "v0.2.0"' forge/elections.json | sponge forge/elections.json   # or edit the one line
+jq '.engine = "v0.2.0"' forge/elections.json > t && mv t forge/elections.json    # plus any manifest: lines in CHANGELOG.md
 just forge render --check
 ```
 
 Tags are the versions. There is no package to install; the subtree commit is the receipt.
+Leaving is `/pagma-uninstall`, or [`UNINSTALL.md`](./UNINSTALL.md) for any agent: it
+removes the harness links and nothing of yours without asking.
 
 ## Posture
 
@@ -138,6 +145,8 @@ suite-publishing pipeline coupled to the author's suite and are not yet general.
 
 ## Docs
 
+- [`INSTALL.md`](./INSTALL.md), [`UPDATE.md`](./UPDATE.md), [`UNINSTALL.md`](./UNINSTALL.md)
+  — the three agent-facing procedures; [`CHANGELOG.md`](./CHANGELOG.md) — one entry per tag.
 - [`scripts/README.md`](./scripts/README.md) — every script, the manifest contract,
   multicast scopes, link modes.
 - [`examples/descendant/`](./examples/descendant/) — the rare book, readable in two minutes.
