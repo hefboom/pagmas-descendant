@@ -1,9 +1,14 @@
 {
-  "engine": "v0.1.21",
+  "engine": "v0.1.22",
   "harnesses": {
     "claude-code": {
       "roots": {
         "global": "home/claude/skills"
+      },
+      "unmanaged": {
+        "global": [
+          "synced"
+        ]
       },
       "defaultTier": "workhorse",
       "tiers": {

@@ -36,15 +36,26 @@ For each `symlink` entry, `readlink` its `path`:
 - it prints the entry's `target` → pagma's link, list it for removal
 - it is a real directory, or a link pointing elsewhere → changed, left; say so
 
-Where skills were linked one by one, links made after the install are not on the ledger.
-List those too, marked as inferred: every link directly under `~/.claude/skills` whose
-`readlink` points inside the descendant's `home/claude/skills/`. Its target says it is
-pagma's.
+An install from v0.1.19 to v0.1.21 may have linked skills one by one. List those links
+too, marked as inferred: every link directly under `~/.claude/skills` whose `readlink`
+points inside the descendant's `home/claude/skills/`. Its target says it is pagma's.
 
 Ask, then `rm` the listed links (the links only, never `rm -r`). If an entry has a
 `replaced` field, offer to point the link back: `ln -s "<replaced>" "<path>"`. Nothing
 else under `~/.claude` belongs to pagma. The next Claude Code session will no longer see
 the rendered skills and agents.
+
+Then each `aside` entry: a directory the install set aside to make room for the link.
+Once the link at its `path` is gone and nothing else is there, put it back with
+`mv "<kept>" "<path>"`. It returns exactly as it was before pagma, and that counts as
+removed. Skills that were adopted come back in their original form; versions written
+since are in the descendant's cellar (stage 6). If something is at `path`, leave both
+where they are and say so.
+
+The Claude app's `synced/` folder may sit in the descendant's `home/claude/skills/`,
+written there through the link. If no `aside` entry brings one back, move it out before
+the descendant goes: `mkdir "$HOME/.claude/skills"`, then `mv` it to
+`~/.claude/skills/synced`. It is the app's, and its built-in skills depend on it.
 
 On Windows the links are junctions (`INSTALL.md` § On Windows). `readlink` reads one like
 a symlink. Remove each with `rmdir "<path>"`: it deletes the junction alone and cannot
