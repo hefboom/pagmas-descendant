@@ -1,0 +1,6 @@
+# Rendered bin trees — build output of `just forge render` from forge/elections.json.
+# Source of truth is the cellar + manifest; delete these and render again.
+home/claude/skills/
+home/claude/agents/
+home/claude/tools/
+forge/scratch/
