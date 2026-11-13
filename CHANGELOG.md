@@ -3,6 +3,9 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.9
+- `UPDATE.md` re-plants rare-book files that are absent in the descendant (`.claude/skills/*`, `AGENTS.md`), so skills added after a descendant was scaffolded arrive on update. Found live: a v0.1.2 descendant updated to v0.1.7 had no `/pagma-update`.
+
 ## v0.1.8
 - `~/.config/pagma/env` owns PATH and `FORGE_ROOT`, sourced by one guarded line per rc file (rustup pattern). `INSTALL.md` writes it, `UNINSTALL.md` removes it.
 - manifest: none. Shell: migrate the bare `export PATH=…` lines from `~/.profile`/`~/.bashrc` into `~/.config/pagma/env` and replace them with the source line (`INSTALL.md` § 1).

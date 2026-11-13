@@ -35,6 +35,17 @@ git subtree pull --prefix forge/engine https://github.com/hefboom/pagma.git <new
 jq --arg v <newest-tag> '.engine = $v' forge/elections.json > forge/elections.json.tmp && mv forge/elections.json.tmp forge/elections.json
 ```
 
+Then re-plant the rare book: for every file under `forge/engine/examples/descendant/.claude/`
+and `forge/engine/examples/descendant/AGENTS.md`, copy it to the same relative path in the
+descendant **only if that path is absent** (new skills such as `/pagma-update` arrive this
+way; an existing file is the person's and is never overwritten). List what was added.
+
+```bash
+(cd forge/engine/examples/descendant && find .claude AGENTS.md -type f) | while read -r f; do
+  [ -e "$f" ] || { mkdir -p "$(dirname "$f")"; cp "forge/engine/examples/descendant/$f" "$f"; echo "added $f"; }
+done
+```
+
 Then every `manifest:` line from step 2, oldest version first. A jq expression is applied
 the same way as the pin line above; a shell command is run as written. Skip a step whose
 effect is already present (the key exists, the symlink exists).
