@@ -65,4 +65,5 @@ Next:
   just forge status                       the resolution table
   ln -s $ROOT/home/claude/skills ~/.claude/skills   point the harness at the bin trees (also agents/ and tools/)
   cp -R forge/skills/global/hello/v1.0.0 forge/skills/global/<name>/v1.0.0   author, then elect-exact
+  export FORGE_ROOT=$ROOT                  in ~/.config/pagma/env, so skills find this descendant from any cwd (INSTALL.md § 2)
 MSG

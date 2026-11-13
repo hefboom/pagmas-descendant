@@ -28,15 +28,25 @@ your harness refuses to run an installer fetched from the network, do not work a
 hand that one line to the person to run themselves and continue once the version check
 passes.
 
-Both land outside the default `PATH`. Export them where every shell sees them, not only
-the interactive one: Ubuntu's `~/.bashrc` returns early for non-interactive shells, so a
-line appended to it never reaches a tool's shell. Put this line in `~/.profile` and at
-the **top** of `~/.bashrc` (or `~/.zprofile` on macOS), and export it in your current
-shell too:
+Both land outside the default `PATH`. pagma owns one shell file for that and for the
+descendant's location, sourced by one guarded line per rc file — the rustup pattern
+(`~/.cargo/env`). Write `~/.config/pagma/env` (create the directory) with exactly:
 
 ```bash
+# pagma — sourced by the shell rc files; remove with UNINSTALL.md
 export PATH="$HOME/.bun/bin:$HOME/.local/bin:$PATH"
 ```
+
+`FORGE_ROOT` is added to it in step 2, once the descendant's path is known. Then add this
+line, if it is not already there (grep first), to `~/.profile` and to the **top** of
+`~/.bashrc` (Ubuntu's `.bashrc` returns early for non-interactive shells, so a line below
+that guard never reaches a tool's shell), or to `~/.zprofile` and `~/.zshrc` on macOS:
+
+```bash
+[ -f "$HOME/.config/pagma/env" ] && . "$HOME/.config/pagma/env"
+```
+
+Source the file in your current shell too.
 
 Check, in a fresh shell rather than the current one:
 `bash -lc 'command -v bun just'` and `bash -c 'command -v bun just'` both print two paths.
@@ -58,10 +68,15 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.7 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.8 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.7`.
+Check: `cat forge/engine/VERSION` prints `0.1.8`.
+
+Now record the descendant's location: append `export FORGE_ROOT="<absolute path of the
+descendant>"` to `~/.config/pagma/env` (replace an existing `FORGE_ROOT` line), and export
+it in the current shell. The engine finds the descendant by walking up from its own
+location, but skills that run from any cwd (the bundled `prime-forge`) need the variable.
 
 ## 3. Build
 

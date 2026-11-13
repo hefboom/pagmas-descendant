@@ -29,7 +29,14 @@ explicitly, naming the path, and only on a clear yes remove it. If they want to 
 their skills but drop the engine, the alternative is: keep the repo, remove `forge/engine/`
 and the `justfile` mod line, and the cellar remains readable plain files.
 
-## 4. What stays
+## 4. The shell file
+
+`~/.config/pagma/env` and the guarded line that sources it in `~/.profile`, `~/.bashrc`,
+`~/.zprofile`, `~/.zshrc` (whichever carry it). List them, ask, then delete the file and
+remove exactly that line from each rc file, nothing else in them. bun and just stay
+installed but leave `PATH` in new shells; say so.
+
+## 5. What stays
 
 `bun`, `just`, `jq`, `fzf`, `python3` were installed for pagma but are general tools; list
 them so the person can remove them with their package manager if they wish. Report what
