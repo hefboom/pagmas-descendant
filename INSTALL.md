@@ -68,8 +68,8 @@ Skip this section unless `uname -s` starts with `MINGW` or `MSYS`: Git Bash, the
 that comes with Git for Windows and the one Claude Code runs its commands in. Inside WSL
 you are on Linux and nothing here applies.
 
-New in v0.1.19. One full install has run on Windows 11; uninstall, update and the
-interactive verbs have not run there yet, so report every mismatch. The steps and the
+New in v0.1.19. One full install and one full uninstall have run on Windows 11; update
+and the interactive verbs have not run there yet, so report every mismatch. The steps and the
 ledger are the same, except:
 
 | Where | On Windows |
@@ -127,7 +127,7 @@ readlink "$HOME/.claude/skills"
 ```
 
 Git Bash sees a junction as a symlink: `[ -L ]` is true, `readlink` prints the target,
-and a plain `rm` removes the link and leaves the target's contents where they are. So the
+and `rmdir` or a plain `rm` removes the link and leaves the target's contents where they are. So the
 step 4 check, the `symlink` ledger line and `UNINSTALL.md` work unchanged. Write the
 ledger line's `target` from what `readlink` printed, so uninstall compares like with
 like. Never `rm -r` a junction.
@@ -373,10 +373,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.20 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.21 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.20`.
+Check: `cat forge/engine/VERSION` prints `0.1.21`.
 
 Now record the descendant's location: append `export FORGE_ROOT="<absolute path of the
 descendant>"` to `~/.config/pagma/env` (replace an existing `FORGE_ROOT` line), and export
