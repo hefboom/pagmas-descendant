@@ -53,6 +53,23 @@ something on the machine (a symlink, a file outside the descendant) also gets it
 `~/.config/pagma/ledger.jsonl`, written as `forge/engine/INSTALL.md` § The ledger shows, so
 uninstall knows about it.
 
+Then every `bundle:` line from step 2. It names starter skills and agents that are new in
+the template, and it is an offer: list them, ask, and add only what the person wants. A
+name already in the descendant's cellar is skipped. For each yes, copy it out of the
+template and take its election from the template's manifest:
+
+```bash
+T=forge/engine/examples/descendant/forge; M=forge/elections.json
+# a skill
+cp -R "$T/skills/global/<name>" forge/skills/global/
+jq --slurpfile t "$T/elections.json" --arg n <name> '.harnesses["claude-code"].elections.global[$n] = $t[0].harnesses["claude-code"].elections.global[$n]' "$M" > "$M.tmp" && mv "$M.tmp" "$M"
+# an agent
+cp -R "$T/agents/<name>" forge/agents/
+jq --slurpfile t "$T/elections.json" --arg n <name> '.harnesses["claude-code"].agents[$n] = $t[0].harnesses["claude-code"].agents[$n]' "$M" > "$M.tmp" && mv "$M.tmp" "$M"
+# new variants of an agent the descendant already has: its own variants win
+jq --slurpfile t "$T/elections.json" --arg n <name> '.harnesses["claude-code"].agents[$n].variants = ($t[0].harnesses["claude-code"].agents[$n].variants + .harnesses["claude-code"].agents[$n].variants)' "$M" > "$M.tmp" && mv "$M.tmp" "$M"
+```
+
 ## 4. Verify and report
 
 ```bash
@@ -62,7 +79,7 @@ just forge render --check
 ```
 
 Pass: the gate prints `N/N elections render byte-identical to the live bin trees`.
-Report the versions crossed, each manifest step applied or skipped, any ledger lines
+Report the versions crossed, each manifest step applied or skipped, each bundle item added or declined, any ledger lines
 added, and the gate line.
 Offer to commit (`git add -A && git commit -m "forge: engine <newest-tag>"`). If a step in
 this file did not match what you found, say so — that is a bug in this file.
