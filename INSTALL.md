@@ -7,6 +7,15 @@ to. Report at the end with the output of the two verification commands.
 Vocabulary: the *engine* is this repository, mounted at `forge/engine/` inside a
 *descendant*, the repo that holds the person's own skills, agents and manifest.
 
+The person may not know these words, so say the thing before the term. pagma needs one
+repository to be the hub that every skill and agent is managed from. The hub holds every
+version the person writes, and the one manifest that says which version is live. From it a
+skill is either global (every session on the machine sees it) or aimed at a single
+repository (only sessions in that repo see it). A repo set up as that hub, a new one or
+one they already have, is a *descendant* of pagma: it carries the engine inside it and
+takes its updates from it. That noun is the only coined word; the act has none, it is
+setting the repo up.
+
 ## The ledger
 
 Everything this install puts on the machine is written down as it is created: one JSON
@@ -73,9 +82,9 @@ Machine
   missing    bun, just, fzf
 
 Tools to install
-  fzf        apt package          I run it
-  bun        installer script     I run it; if refused, you run it
-  just       installer script     I run it; if refused, you run it
+  fzf        pickers, for you     apt package          I run it
+  bun        runs the renderer    installer script     I run it; if refused, you run it
+  just       runs the verbs       installer script     I run it; if refused, you run it
 
 bun installer: read in full, matches the baseline
   downloads  one zip from github.com/oven-sh/bun
@@ -97,8 +106,10 @@ Files pagma writes
   the line                        [ -f "$HOME/.config/pagma/env" ] && . "$HOME/.config/pagma/env"
   ~/.config/pagma/ledger.jsonl    new: the record of everything in this plan
 
-Descendant
+Descendant: the hub repo all your skills and agents are managed from
   ~/prompts                       new git repo, engine <version> at forge/engine/
+  holds                           every version you write, and the manifest of what is live
+  serves                          global skills for every session, or skills for one repo
 
 Links
   ~/.claude/skills                to ~/prompts/home/claude/skills
@@ -140,12 +151,12 @@ Why each piece is there. Explain from this, not from memory:
 | `bun` | runs the renderer, the TypeScript that turns the manifest into the skill and agent files the harness reads | nothing renders |
 | `just` | the command runner: every verb (`just forge render`, `status`, `elect-exact`) is a recipe in the engine's justfile, which needs 1.31 for its syntax | no verbs |
 | `jq` | reads and edits the manifest `forge/elections.json` inside the verbs, and writes the ledger | no election can change |
-| `fzf` | the pickers in the interactive verbs (`elect`, `move`, `retire`, `discover`) | only those verbs stop; the `-exact` ones do not use it. The setup check still asks for all six |
+| `fzf` | the pickers in the interactive verbs (`view`, `elect`, `move`, `retire`, `discover`). Each is the hand-operated twin of a verb the agent runs (`show`, `elect-exact`, `move-exact`, …): the same engine, a picker in place of arguments. pagma is built to be driven by agents, and fzf is for the person: doing a step by hand once shows them what their agent can do | the agent's `-exact` verbs still work; the person loses the way to see and try them. Recommended, and the setup check asks for it |
 | `python3` | one read-only report, `just forge edges` | only that report stops. The setup check still asks for all six |
 | `~/.config/pagma/env` | bun and just install outside the default `PATH`; this file puts them on it and records where the descendant is (`FORGE_ROOT`) | new shells find neither the tools nor the descendant |
 | the rc lines | one line per startup file that reads the env file; two files because login shells and the shells tools start read different ones | the env file is never read |
 | the ledger | the record uninstall walks, so removal is exact and can end on "nothing remains" | uninstall falls back to inspecting the machine |
-| the descendant | the person's own repo: the manifest, every skill and agent version they write, and the engine mounted inside | nowhere for their skills to live |
+| the descendant | the hub: the one repo every skill and agent is managed from. It holds every version the person writes, the manifest of which version is live, and the engine mounted inside. A skill elected there is global, or aimed at one repo | nowhere for their skills to live, nothing to elect from |
 | the three links | the harness reads `~/.claude/…`, the engine renders inside the descendant; the links join the two | the harness sees no rendered skills |
 
 Shell startup files and `~/.claude` are the person's. A harness may refuse to touch them
@@ -228,7 +239,7 @@ export PATH="$HOME/.bun/bin:$HOME/.local/bin:$PATH"
 ```
 
 `FORGE_ROOT` is added to it in step 2, once the descendant's path is known. Then add this
-line, if it is not already there (grep first), to `~/.profile` and to the **top** of
+line, alone with no blank line around it and only if it is not already there (grep first), to `~/.profile` and to the **top** of
 `~/.bashrc` (Ubuntu's `.bashrc` returns early for non-interactive shells, so a line below
 that guard never reaches a tool's shell), or to `~/.zprofile` and `~/.zshrc` on macOS:
 
@@ -240,8 +251,10 @@ Source the file in your current shell too. If your harness starts every command 
 shell, its picture of the startup files was taken before this file existed: begin each
 later command with `. "$HOME/.config/pagma/env";` until the session is restarted.
 
-Check, in a fresh shell rather than the current one:
-`bash -lc 'command -v bun just'` and `bash -c 'command -v bun just'` both print two paths.
+Check, in a fresh shell rather than the current one. Both print two paths:
+`bash -lc 'command -v bun just'`, a login shell, and
+`bash -c '. "$HOME/.bashrc"; command -v bun just'`, what a tool does when it loads the rc
+file without a terminal. A bare `bash -c` reads no startup file at all and proves nothing.
 
 Check: every one of the six names resolves with `command -v`, and `just --version` is 1.31 or newer.
 
@@ -268,10 +281,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.16 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.17 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.16`.
+Check: `cat forge/engine/VERSION` prints `0.1.17`.
 
 Now record the descendant's location: append `export FORGE_ROOT="<absolute path of the
 descendant>"` to `~/.config/pagma/env` (replace an existing `FORGE_ROOT` line), and export
@@ -338,6 +351,17 @@ a new session will have `/hello`, and the authoring loop is
 cp -R forge/skills/global/hello/v1.0.0 forge/skills/global/<name>/v1.0.0
 $EDITOR forge/skills/global/<name>/v1.0.0/SKILL.md
 just forge elect-exact claude-code/global/<name> v1.0.0
+```
+
+End with the one recommendation, in the same one-fact-per-line shape: before handing it
+all to an agent, drive it by hand once, in a terminal inside the descendant.
+
+```text
+By hand, once
+  just forge view      browse what is elected, with a detail pane
+  just forge elect     change an election with pickers
+  why                  each is the twin of a verb your agent runs (show, elect-exact)
+  so                   you see what the agent can do by doing it yourself
 ```
 
 If anything in this file did not match what you found, say so in the report — that is

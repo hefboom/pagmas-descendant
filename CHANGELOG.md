@@ -3,6 +3,11 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.17
+- The descendant is explained before it is named: the hub repo every skill and agent is managed from, global or aimed at one repo. The noun is the only coined word; setting one up has no special verb. In `INSTALL.md` (vocabulary, plan, explanations) and the README.
+- fzf is for the person: the interactive verbs are the hand-operated twins of the `-exact` verbs an agent runs. The README pairs them, and the install ends by recommending one pass by hand.
+- `INSTALL.md` step 1 check: `bash -c '. "$HOME/.bashrc"; …'` in place of a bare `bash -c`, which reads no startup file. Found live: the old check could not pass on a correct install. The rc line is added alone, with no blank line around it.
+
 ## v0.1.16
 - The plan has a fixed layout: one fact per line, a label with indented lines under it, columns lined up with spaces, no paragraphs. `INSTALL.md` carries the template. Found live: the plan arrived as prose inside a question box and could not be scanned.
 
