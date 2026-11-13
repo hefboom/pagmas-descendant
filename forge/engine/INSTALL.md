@@ -59,7 +59,7 @@ Decide which case you are in by looking at the current directory:
 
 | You see | Case | Do |
 |---|---|---|
-| `VERSION` and `scripts/render.ts` in the directory itself, origin `hefboom/pagma` | a clone of the engine repo, not a descendant | do not mount the engine into itself; ask for a directory for the descendant (suggest a sibling such as `../prompts`), `cd` there, continue with the row that matches it |
+| `VERSION` and `scripts/render.ts` in the directory itself, origin `hefboom/pagma` | a clone of the engine repo: the bootstrap case | never mount the engine into itself. **Ask where the descendant should live.** Suggest `~/prompts`; offer an existing repo the person already keeps their shell or editor config in, which becomes the descendant in place. Create the directory if needed, then continue with the row that matches it, running every later command in that directory (`cd` or absolute paths; your session stays rooted in the clone). In step 5, add the cleanup line. |
 | `forge/elections.json` and `forge/engine/VERSION` | an existing descendant (a clone of a template, or a second machine) | nothing here, go to step 3 |
 | `forge/engine/VERSION` but no `forge/elections.json` | engine mounted, not yet scaffolded | `bash forge/engine/scripts/init.sh`, go to step 4 |
 | neither, inside a git repo | a repo that should become a descendant | mount the engine (below), then `init.sh` |
@@ -68,10 +68,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.9 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.10 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.9`.
+Check: `cat forge/engine/VERSION` prints `0.1.10`.
 
 Now record the descendant's location: append `export FORGE_ROOT="<absolute path of the
 descendant>"` to `~/.config/pagma/env` (replace an existing `FORGE_ROOT` line), and export
@@ -109,7 +109,11 @@ just forge render --check
 Pass looks like: every row's LIVE column says `ok`, and the gate prints
 `N/N elections render byte-identical to the live bin trees`. Report both outputs, the
 OS and package manager you used, and anything you installed. The scaffold is
-uncommitted; offer to commit it (`git add -A && git commit -m "pagma: descendant"`). Then tell the person:
+uncommitted; offer to commit it (`git add -A && git commit -m "pagma: descendant"`). If you
+started in a clone of the engine (the bootstrap row), say that the clone is now redundant,
+since the descendant carries its own copy of the engine, and give the person the line to
+run after they open a session in the descendant: `rm -rf <path of the clone>`. Do not run
+it yourself; it is the directory your session is in. Then tell the person:
 a new session will have `/hello`, and the authoring loop is
 
 ```bash

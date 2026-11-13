@@ -3,6 +3,9 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.10
+- The clone is a first-class bootstrap: the engine repo ships `/pagma-install` and `AGENTS.md` at its root; `INSTALL.md`'s engine-clone row asks where the descendant should live (suggests `~/prompts`, or an existing config repo in place), continues there, and ends with the cleanup line for the clone. Five agents stood in a clone today.
+
 ## v0.1.9
 - `UPDATE.md` re-plants rare-book files that are absent in the descendant (`.claude/skills/*`, `AGENTS.md`), so skills added after a descendant was scaffolded arrive on update. Found live: a v0.1.2 descendant updated to v0.1.7 had no `/pagma-update`.
 
