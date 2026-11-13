@@ -1,9 +1,10 @@
 {
-  "engine": "v0.1.30",
+  "engine": "v0.1.31",
   "harnesses": {
     "claude-code": {
       "roots": {
-        "global": "home/claude/skills"
+        "global": "home/claude/skills",
+        "hub": "home/claude/repos/hub/skills"
       },
       "unmanaged": {
         "global": [
@@ -29,6 +30,9 @@
             "model": "opus",
             "effort": "high"
           }
+        ],
+        "session": [
+          {}
         ]
       },
       "toolsRoot": "home/claude/tools",
@@ -76,6 +80,14 @@
             "version": "v1.0.0"
           },
           "prime-forge": {
+            "version": "v1.0.0"
+          }
+        },
+        "hub": {
+          "pagma-update": {
+            "version": "v1.0.0"
+          },
+          "pagma-uninstall": {
             "version": "v1.0.0"
           }
         }

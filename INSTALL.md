@@ -124,12 +124,13 @@ Links
   ~/.claude/skills                to ~/pagmas-descendant/home/claude/skills
   ~/.claude/agents                to ~/pagmas-descendant/home/claude/agents
   ~/.claude/tools                 to ~/pagmas-descendant/home/claude/tools
+  the hub's .claude/skills        to ~/pagmas-descendant/home/claude/repos/hub/skills
 
 When you say go ahead
   step 1     I install fzf, bun, just
   step 2     I write the env file and the two rc lines
   step 3     I create ~/pagmas-descendant, mount the engine, build, render
-  step 4     I link the three directories and run the two checks
+  step 4     I link the four directories and run the two checks
   stops      only if a step is refused or needs your hand
   result     six tools, ~/pagmas-descendant, /hello in a new session
   undo       /pagma-uninstall removes every item on the ledger
@@ -246,10 +247,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.30 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.31 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.30`.
+Check: `cat forge/engine/VERSION` prints `0.1.31`.
 
 Now record the descendant's location: append `export FORGE_ROOT="<absolute path of the
 descendant>"` to `~/.config/pagma/env` (replace an existing `FORGE_ROOT` line), and export
@@ -274,7 +275,7 @@ just forge render       # writes the bin trees under home/
 The engine renders into `home/claude/{skills,agents,tools}` inside the descendant and
 never writes outside it. The harness reads `~/.claude/{skills,agents,tools}`. One
 symlink per directory connects them, three in all: `skills`, `agents`, `tools` (render
-creates all three roots, empty or not). For each:
+creates all three roots, empty or not). A fourth, below, is the descendant's own. For each:
 
 - `~/.claude/<dir>` does not exist → `ln -s "$PWD/home/claude/<dir>" ~/.claude/<dir>`
 - it is a real directory and empty → `rmdir ~/.claude/<dir>`, which refuses a directory with content, then link as above
@@ -282,6 +283,18 @@ creates all three roots, empty or not). For each:
 - it is a real directory with content → the person answered this before the plan ("An existing folder"). Act on that answer as `install/existing-folder.md` says. Never delete or overwrite what is there.
 
 Check: `readlink ~/.claude/skills` prints a path ending in `home/claude/skills`.
+
+Then the descendant's own link, the fourth. Skills in the `hub` scope are for sessions
+opened in the descendant itself (`/pagma-update` and `/pagma-uninstall` are the first
+two). They render into `home/claude/repos/hub/skills`, and such a session reads
+`.claude/skills` in the descendant's root:
+
+- `.claude/skills` does not exist → `mkdir -p .claude && ln -s "$PWD/home/claude/repos/hub/skills" .claude/skills`
+- it is already a link → `readlink` it. That path: nothing to do. Another: show the person, ask before repointing
+- it is a real directory → the repo keeps skills of its own there. Leave it, make no link, and say that `/pagma-update` and `/pagma-uninstall` are not slash commands in this descendant: the same two are `forge/engine/UPDATE.md` and `forge/engine/UNINSTALL.md`, read and followed
+
+Check: `readlink .claude/skills` prints a path ending in `home/claude/repos/hub/skills`,
+and `ls .claude/skills` lists `pagma-update` and `pagma-uninstall`.
 
 Ledger: a `symlink` line for each link you created. If you repointed an existing link, add
 its old target as `replaced` (`--arg w "<old target>"`, `replaced:$w`), so uninstall can

@@ -3,6 +3,12 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.31
+- A descendant has a scope for itself, `hub`: skills that load only in a session opened in the descendant. `/pagma-update` and `/pagma-uninstall` are its first two, now cellar skills that are versioned, rendered and linked like any other, where before they were plain files in `.claude/skills/`. The install makes a fourth link for it, the descendant's own `.claude/skills`, recorded on the ledger. In the engine the scope was hard-coded under the name `dotfiles`; that name still works.
+- `/pagma-install` is a command file, `.claude/commands/pagma-install.md`. It has to exist before anything is rendered, so it is the one procedure that cannot come out of the cellar.
+- A tier may carry no model: the template's new `session` tier renders no `model:` line, so a skill runs on whatever the session is using. The two procedures use it.
+- manifest: run `mkdir -p forge/skills/hub && cp -R forge/engine/examples/descendant/forge/skills/hub/. forge/skills/hub/`, then apply `.harnesses["claude-code"] |= (.roots.hub = "home/claude/repos/hub/skills" | .tiers.session = [{}] | .elections.hub = ((.elections.hub // {}) + {"pagma-update": {"version": "v1.0.0"}, "pagma-uninstall": {"version": "v1.0.0"}}))`. Machine: follow `forge/engine/install/hub-scope.md`.
+
 ## v0.1.30
 - `README.md` is rewritten for the person deciding whether to install: the friction pagma removes, what you get, the install, the workflow around `/prime-forge`, the starter set. The mechanism, layout and scope detail it used to carry now live in `AUTHORING.md`.
 - manifest: none.

@@ -8,7 +8,7 @@ Part of `INSTALL.md` § The ledger, which has the line formats: read this from
 ledger. Build it by inspection with the same lines, and tell the person the list is
 inferred, not recorded:
 
-- `symlink`: each of `~/.claude/{skills,agents,tools}` that is a symlink into the descendant.
+- `symlink`: each of `~/.claude/{skills,agents,tools}` that is a symlink into the descendant, and the descendant's own `.claude/skills` if it is a link to its `home/claude/repos/hub/skills`.
 - `aside`: each `~/.claude/{skills,agents,tools}.before-pagma` that exists.
 - `file`: `~/.config/pagma/env`, if it exists.
 - `line`: each of `~/.profile`, `~/.bashrc`, `~/.zprofile`, `~/.zshrc` that carries the source line (`grep -xF`).

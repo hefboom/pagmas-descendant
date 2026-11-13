@@ -50,7 +50,7 @@ for s in data["skills"]:
                 i += 1
             if fpath:
                 target = Path(os.path.expanduser(fpath)); cls_anchor = target
-            elif s["scope"] == "dotfiles": target = dotfiles / "justfile"; cls_anchor = target
+            elif s["scope"] in ("hub", "dotfiles"): target = dotfiles / "justfile"; cls_anchor = target
             elif s["scope"] != "global": target = dev / s["scope"] / "justfile"; cls_anchor = target
             else: target = None; cls_anchor = None
             if target is not None and target.is_dir(): target = target / "justfile"
@@ -74,7 +74,7 @@ for s in data["skills"]:
             if recipe is None: continue
             rows.add((s["label"], tshow, recipe, cls, check))
     for e in s.get("engines", []):  # a declared floor: provided by the target repo's stamp, checked against its receipt
-        repo = dotfiles if s["scope"] == "dotfiles" else dev / s["scope"] if s["scope"] != "global" else None
+        repo = dotfiles if s["scope"] in ("hub", "dotfiles") else dev / s["scope"] if s["scope"] != "global" else None
         receipt = None if repo is None else repo / ".claude" / "skills" / f"{e['suite']}.receipt.json"
         if receipt is None: check = "unchecked"
         elif not receipt.exists(): check = "no-receipt"

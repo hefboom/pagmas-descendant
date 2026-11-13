@@ -228,13 +228,13 @@ function devRoot(): string {
 
 /** A multicast scope's group: every declared root (bar `global`) whose repo dir holds
     the suite's receipt. Repo dir resolution is link.sh's — `$FORGE_DEV_ROOT/<repo>`,
-    `dotfiles` the forge's own repo. Symlinked repo dirs are skipped, so a compat link
+    `hub` (or its older name `dotfiles`) the forge's own repo. Symlinked repo dirs are skipped, so a compat link
     to a real dir never renders it twice. */
 function subscribers(h: Harness, scope: string, suite: string): Subscriber[] {
   const out: Subscriber[] = [];
   for (const [repo, root] of Object.entries(h.roots)) {
     if (repo === "global" || repo === scope) continue;
-    const dir = repo === "dotfiles" ? repoRoot() : path.join(devRoot(), repo);
+    const dir = repo === "hub" || repo === "dotfiles" ? repoRoot() : path.join(devRoot(), repo);
     if (!fs.existsSync(dir) || fs.lstatSync(dir).isSymbolicLink()) continue;
     const receipt = path.join(dir, ".claude", "skills", `${suite}.receipt.json`);
     if (!fs.existsSync(receipt)) continue;

@@ -70,10 +70,11 @@ Start from the template, [hefboom/pagmas-descendant](https://github.com/hefboom/
 
 ```bash
 mkdir pagmas-descendant && cd pagmas-descendant && git init && git commit --allow-empty -m init
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.30 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.31 --squash
 bash forge/engine/scripts/init.sh          # manifest, starter set, justfile, first render
 just forge status                          # one row per election, LIVE column says ok
 ln -s "$PWD/home/claude/skills" ~/.claude/skills    # and the same for agents and tools
+mkdir -p .claude && ln -s "$PWD/home/claude/repos/hub/skills" .claude/skills    # the hub's own skills
 ```
 
 `init.sh` never touches your home folder. The links are yours to make.
@@ -120,6 +121,7 @@ it, retire it.
 | `prime-forge` | skill | teaches a fresh agent how the hub works and what is live, so it can write, version and switch skills for you. Run it first, then ask your agent anything |
 | `systems-architect` | skill | takes a system, a document or a design apart into its working parts, how they act on each other, and one governing analogy. Tag the topic `understand`, `debug` or `audit`. Runs on the top tier. To run it in a subagent, spawn `sota` and name the skill |
 | `hello` | skill | the smoke test: one line that proves the hub works end to end |
+| `pagma-update`, `pagma-uninstall` | skills, hub only | the two procedures, as skills in your own cellar. They are scoped to the hub, so they load only in a session opened there |
 | `doc-section` | tool | reads one section of a markdown file by its heading. `prime-forge` uses it to load only the parts of `AUTHORING.md` it needs |
 | `lightweight`, `workhorse`, `sota` | agents | nothing but a model tier: spawn one to run a prompt, or a named skill, on that tier |
 | `lightweight-ro`, `workhorse-ro`, `sota-ro` | agents | the same three with the editing tools removed: they report and never change files |

@@ -2,6 +2,7 @@
 name: pagma-uninstall
 description: Remove pagma from this machine by walking its install ledger — the harness symlinks, the shell lines, the tools it added (yes/no each), optionally this descendant. Verifies, asks, removes, then reports entry by entry.
 allowed-tools: Read, Bash
+tier: session
 ---
 
 # pagma-uninstall
