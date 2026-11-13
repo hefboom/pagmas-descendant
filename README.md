@@ -2,12 +2,12 @@
 
 A template for a [pagma](https://github.com/hefboom/pagma) descendant: your own
 versioned cellar of agent skills and subagents, with the engine already mounted at
-`forge/engine/` (pagma v0.1.1, a git subtree pinned by tag).
+`forge/engine/` (pagma v0.1.2, a git subtree pinned by tag).
 
 *Use this template* on GitHub, clone the result, then:
 
 ```bash
-just forge install && just forge render        # needs bun, just, jq, fzf, python3
+just forge install && just forge render        # needs bun, just, jq, fzf, python3 — or /pagma-install in Claude Code
 ln -s "$PWD/home/claude/skills" ~/.claude/skills
 ln -s "$PWD/home/claude/agents" ~/.claude/agents
 just forge status
