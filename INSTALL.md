@@ -22,14 +22,26 @@ only what is missing, with the person's package manager:
 | Windows | stop — use WSL2 and run this file inside it; native Windows is not supported |
 
 bun, when the package manager has no package for it:
-`curl -fsSL https://bun.sh/install | bash`, then make sure `$HOME/.bun/bin` is on `PATH`
-for this shell and in the person's shell rc. just, when the package manager's is missing or
-below 1.31: `curl -sSf https://just.systems/install.sh | bash -s -- --to ~/.local/bin`, and
-put `~/.local/bin` on `PATH` the same way. If your harness refuses to run an installer
-fetched from the network, do not work around it: hand that one line to the person to run
-themselves and continue once `just --version` passes.
+`curl -fsSL https://bun.sh/install | bash`. just, when the package manager's is missing or
+below 1.31: `curl -sSf https://just.systems/install.sh | bash -s -- --to ~/.local/bin`. If
+your harness refuses to run an installer fetched from the network, do not work around it:
+hand that one line to the person to run themselves and continue once the version check
+passes.
 
-Check: every one of the six names resolves with `command -v`.
+Both land outside the default `PATH`. Export them where every shell sees them, not only
+the interactive one: Ubuntu's `~/.bashrc` returns early for non-interactive shells, so a
+line appended to it never reaches a tool's shell. Put this line in `~/.profile` and at
+the **top** of `~/.bashrc` (or `~/.zprofile` on macOS), and export it in your current
+shell too:
+
+```bash
+export PATH="$HOME/.bun/bin:$HOME/.local/bin:$PATH"
+```
+
+Check, in a fresh shell rather than the current one:
+`bash -lc 'command -v bun just'` and `bash -c 'command -v bun just'` both print two paths.
+
+Check: every one of the six names resolves with `command -v`, and `just --version` is 1.31 or newer.
 
 ## 2. The descendant
 
@@ -46,10 +58,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.6 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.7 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.6`.
+Check: `cat forge/engine/VERSION` prints `0.1.7`.
 
 ## 3. Build
 
