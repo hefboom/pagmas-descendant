@@ -9,20 +9,25 @@ Vocabulary: the *engine* is this repository, mounted at `forge/engine/` inside a
 
 ## 1. Prerequisites
 
-The engine needs `git`, `bun`, `just`, `jq`, `fzf`, `python3`. Check each with
-`command -v`. Install only what is missing, with the person's package manager:
+The engine needs `git`, `bun`, `just` **1.31 or newer**, `jq`, `fzf`, `python3`. Check
+each with `command -v`, and `just --version` against the floor: the engine's justfile uses
+`[group]` and `mod`, and distro packages are often older (Ubuntu 24.04 ships 1.21). Install
+only what is missing, with the person's package manager:
 
 | OS | Command |
 |---|---|
 | macOS (Homebrew) | `brew install bun just jq fzf python3` |
-| Debian / Ubuntu | `sudo apt-get update && sudo apt-get install -y git jq fzf python3 just` then bun below |
-| Fedora | `sudo dnf install -y git jq fzf python3 just` then bun below |
+| Debian / Ubuntu | `sudo apt-get update && sudo apt-get install -y git jq fzf python3` then bun and just below |
+| Fedora | `sudo dnf install -y git jq fzf python3 just` then bun below; check the just version |
 | Windows | stop — use WSL2 and run this file inside it; native Windows is not supported |
 
 bun, when the package manager has no package for it:
 `curl -fsSL https://bun.sh/install | bash`, then make sure `$HOME/.bun/bin` is on `PATH`
-for this shell and in the person's shell rc. just, when apt has no package for it:
-`curl -sSf https://just.systems/install.sh | bash -s -- --to ~/.local/bin`.
+for this shell and in the person's shell rc. just, when the package manager's is missing or
+below 1.31: `curl -sSf https://just.systems/install.sh | bash -s -- --to ~/.local/bin`, and
+put `~/.local/bin` on `PATH` the same way. If your harness refuses to run an installer
+fetched from the network, do not work around it: hand that one line to the person to run
+themselves and continue once `just --version` passes.
 
 Check: every one of the six names resolves with `command -v`.
 
@@ -41,10 +46,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.3 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.4 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.3`.
+Check: `cat forge/engine/VERSION` prints `0.1.4`.
 
 ## 3. Build
 
@@ -57,8 +62,8 @@ just forge render       # writes the bin trees under home/
 
 The engine renders into `home/claude/{skills,agents,tools}` inside the descendant and
 never writes outside it. The harness reads `~/.claude/{skills,agents,tools}`. One
-symlink per directory connects them. For each of `skills`, `agents`, and `tools` (tools
-only if `home/claude/tools` exists):
+symlink per directory connects them. Do it for `skills` and `agents`; a fresh descendant
+has no `home/claude/tools`, so skip `tools` unless that directory exists. For each:
 
 - `~/.claude/<dir>` does not exist → `ln -s "$PWD/home/claude/<dir>" ~/.claude/<dir>`
 - it is already a symlink → read its target, show the person, ask before repointing

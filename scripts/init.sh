@@ -28,6 +28,13 @@ if (( ${#missing[@]} )); then
   exit 1
 fi
 
+just_floor=1.31.0
+just_have=$(just --version | awk '{print $2}')
+if [[ $(printf '%s\n%s\n' "$just_floor" "$just_have" | sort -V | head -1) != "$just_floor" ]]; then
+  echo "forge init: just $just_have is too old — the justfile needs $just_floor or newer ([group], mod); distro packages often lag, see INSTALL.md" >&2
+  exit 1
+fi
+
 [[ -e $ROOT/forge/elections.json ]] && { echo "forge init: $ROOT/forge/elections.json exists — already a descendant" >&2; exit 1; }
 
 template=$ENGINE/examples/descendant
