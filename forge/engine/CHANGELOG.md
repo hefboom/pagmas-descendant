@@ -3,6 +3,9 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.12
+- `INSTALL.md` opens with a plan: look first, show the person everything the install will put on the machine (tools, the env file, the rc lines, the ledger, the descendant, the links), ask once. After that, small commands, one change and its ledger line each; a change the harness still refuses is handed to the person. Found live: an agent put the env file, both rc edits and the ledger into one command, and its harness refused it as persistence nobody had approved.
+
 ## v0.1.11
 - The ledger: `INSTALL.md` records everything it creates on the machine in `~/.config/pagma/ledger.jsonl`, one JSON line each (the tools it had to add, the env file, the rc lines, the harness links, the descendant, the bootstrap clone). `UNINSTALL.md` walks it: verify, ask, remove, confirm, with a yes/no per added tool, and ends on a per-entry report that can say "nothing pagma created remains". A tool that was on the machine before pagma is never on the ledger and never offered for removal.
 - manifest: none. Machine: if `~/.config/pagma/ledger.jsonl` is absent, build it by inspection (`INSTALL.md` § The ledger, "A machine without one").

@@ -49,6 +49,31 @@ inferred, not recorded:
 - `descendant`: its path. Ask whether the directory was the person's before pagma (`in_place`, step 2); `true` if unsure.
 - `dep`: inspection cannot tell who installed a tool. Ask which of the six the person installed for pagma and record those, `via` read from where `command -v` finds the binary. No answer, no `dep` lines.
 
+## Before you change anything
+
+Look first and change nothing: which of the six tools in step 1 are missing (your
+before-list), which row of step 2 you are in, and whether `~/.claude/{skills,agents,tools}`
+exist. Then show the person the plan as one list and ask once:
+
+| What | Where |
+|---|---|
+| tools to install | the missing ones, and which of them the person will have to run themselves (step 1) |
+| a shell file | `~/.config/pagma/env`, new |
+| one line that sources it | added to `~/.profile` and the top of `~/.bashrc` (`~/.zprofile` and `~/.zshrc` on macOS); show the line |
+| the ledger | `~/.config/pagma/ledger.jsonl`, the record of everything on this list |
+| the descendant | its directory; in the bootstrap row of step 2, ask where it should live as part of this question, and not again later |
+| three links | `~/.claude/{skills,agents,tools}`, pointing into the descendant |
+
+Shell startup files and `~/.claude` are the person's. A harness may refuse to touch them
+without the person's say-so, and it is right to: their yes to this list is that say-so. If
+they say no to the rc lines, skip those and give them the line to add when they choose;
+everything else still installs, but new shells will not find bun and just until it is there.
+
+Then work in small commands: one change and its ledger line per command, never a whole
+step at once, so a refusal stops one thing and you know which. If the harness still
+refuses a change after the person's yes, do not work around it. Hand them the exact lines
+to run, and continue once that step's check passes.
+
 ## 1. Prerequisites
 
 The engine needs `git`, `bun`, `just` **1.31 or newer**, `jq`, `fzf`, `python3`. Check
@@ -117,10 +142,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.11 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.12 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.11`.
+Check: `cat forge/engine/VERSION` prints `0.1.12`.
 
 Now record the descendant's location: append `export FORGE_ROOT="<absolute path of the
 descendant>"` to `~/.config/pagma/env` (replace an existing `FORGE_ROOT` line), and export
