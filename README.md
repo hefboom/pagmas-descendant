@@ -2,7 +2,7 @@
 
 A template for a [pagma](https://github.com/hefboom/pagma) descendant: your own
 versioned cellar of agent skills and subagents, with the engine already mounted at
-`forge/engine/` (pagma v0.1.18, a git subtree pinned by tag).
+`forge/engine/` (pagma v0.1.19, a git subtree pinned by tag).
 
 *Use this template* on GitHub, clone the result, then:
 
