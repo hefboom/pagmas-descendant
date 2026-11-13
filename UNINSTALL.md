@@ -36,6 +36,11 @@ For each `symlink` entry, `readlink` its `path`:
 - it prints the entry's `target` → pagma's link, list it for removal
 - it is a real directory, or a link pointing elsewhere → changed, left; say so
 
+Where skills were linked one by one, links made after the install are not on the ledger.
+List those too, marked as inferred: every link directly under `~/.claude/skills` whose
+`readlink` points inside the descendant's `home/claude/skills/`. Its target says it is
+pagma's.
+
 Ask, then `rm` the listed links (the links only, never `rm -r`). If an entry has a
 `replaced` field, offer to point the link back: `ln -s "<replaced>" "<path>"`. Nothing
 else under `~/.claude` belongs to pagma. The next Claude Code session will no longer see

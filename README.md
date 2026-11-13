@@ -75,7 +75,7 @@ clone is a bootstrap, not a place to work: nothing runs from the engine's own ch
 mounts the engine, scaffolds the descendant, links the harness and reports. Nothing in it
 touches your `~/.claude` without asking when something is already there.
 
-**Without one**, start from the template: [github.com/hefboom/pagma-descendant](https://github.com/hefboom/pagma-descendant)
+**Without one**, start from the template: [github.com/hefboom/pagmas-descendant](https://github.com/hefboom/pagmas-descendant)
 → *Use this template* → clone it. It is a descendant with the engine already mounted
 and `/pagma-install` committed in `.claude/skills/`, so in Claude Code the install is
 that one command; other agents find the same pointer in `AGENTS.md`.
@@ -86,8 +86,8 @@ that one command; other agents find the same pointer in `AGENTS.md`.
 Prerequisites: `bun`, `just`, `jq`, `fzf`, `python3`, `git` (per-OS commands in `INSTALL.md`).
 
 ```bash
-mkdir my-prompts && cd my-prompts && git init && git commit --allow-empty -m init
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.19 --squash
+mkdir pagmas-descendant && cd pagmas-descendant && git init && git commit --allow-empty -m init
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.20 --squash
 bash forge/engine/scripts/init.sh          # the rare book: manifest, cellar, justfile, first render
 just forge status                          # one row per election, LIVE column says ok
 ```

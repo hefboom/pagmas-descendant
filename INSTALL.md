@@ -68,17 +68,18 @@ Skip this section unless `uname -s` starts with `MINGW` or `MSYS`: Git Bash, the
 that comes with Git for Windows and the one Claude Code runs its commands in. Inside WSL
 you are on Linux and nothing here applies.
 
-New in v0.1.19. How links behave was measured on one Windows 11 machine; the rest is
-unproven, so report every mismatch. The steps and the ledger are the same, except:
+New in v0.1.19. One full install has run on Windows 11; uninstall, update and the
+interactive verbs have not run there yet, so report every mismatch. The steps and the
+ledger are the same, except:
 
 | Where | On Windows |
 |---|---|
 | Tools (step 1) | `winget`, one tool per command, `jq` first so the ledger can be written. No installer scripts, so the plan has no installer blocks. `git` is there already: Git Bash came with it |
-| `python3` | leave it alone. The name usually resolves to a Store alias that is not a real Python, and the setup check only notes a missing one. `just forge edges` does not run on Windows yet |
-| `PATH` | winget puts each tool on the user's `PATH` itself. The env file carries no `PATH` line, only `FORGE_ROOT` from step 2 |
-| Startup files | Git Bash reads one login file, the first that exists of `~/.bash_profile`, `~/.bash_login`, `~/.profile`. Add the line there, and create `~/.profile` if there is none. Then `~/.bashrc`, created if absent |
+| `python3` | leave it alone and install none for pagma. The name may be a real Python or a Store alias that is not one, and the setup check only notes a missing one. `just forge edges` is untried on Windows |
+| `PATH` | winget puts each tool on the `PATH` itself, the user's or the machine's. The env file carries no `PATH` line, only `FORGE_ROOT` from step 2 |
+| Startup files | two files. The login file is the first that exists of `~/.bash_profile`, `~/.bash_login`, `~/.profile`: add the line to that one. Only when none of the three exists, create `~/.profile`. The second is `~/.bashrc`, created if absent |
 | Links (step 4) | never `ln -s`: unless Developer Mode is on, Git Bash copies the directory, reports success, and the copy goes stale at the next render. Make a junction, the directory link that needs no admin rights |
-| An existing `~/.claude/<dir>` | a junction links a whole directory, never a single file. Linking per item works for skills, which are directories, and not for agents, which are files: offer to move those into the cellar, or to leave that directory unlinked |
+| An existing `~/.claude/<dir>` | step 4's cases hold. A junction links a whole directory, never a single file, so linking per item works for skills, which are directories, and not for agents, which are files: offer to move those into the cellar, or to leave that directory unlinked |
 | `just forge link <repo>` | refuses on Windows for now. Make that link by hand with the junction command below |
 | By hand | the interactive verbs run in a Git Bash window, not in PowerShell or cmd |
 
@@ -105,10 +106,16 @@ command with this line. It also replaces the fresh-shell check of step 1, which 
 pass before a restart because a child shell inherits the session's old `PATH`:
 
 ```bash
-export PATH="$PATH:$(cygpath -u -p "$(powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('Path','User')" | tr -d '\r')")";
+export PATH="$PATH:$(cygpath -u -p "$(powershell -NoProfile -Command "[Environment]::GetEnvironmentVariable('Path','Machine') + ';' + [Environment]::GetEnvironmentVariable('Path','User')" | tr -d '\r')")";
 ```
 
 After step 2, `bash -lc 'echo "$FORGE_ROOT"'` prints the descendant's path.
+
+**The ledger.** Begin each ledger command with `export MSYS_NO_PATHCONV=1;`. Git Bash
+rewrites an argument that looks like a path before a Windows program such as jq sees it
+(`/c/Users/…` becomes `C:/Users/…`), and the ledger has to hold paths in the form
+`readlink` prints. Check: `MSYS_NO_PATHCONV=1 jq -nc --arg p "$HOME" '$p'` prints a path
+starting with `/c/`.
 
 **Links.** One junction per directory. The paths travel as environment variables, so a
 space in one needs no quoting:
@@ -143,7 +150,7 @@ Files pagma writes
   ~/.bashrc                       new file, 1 line
 
 Links
-  ~/.claude/skills                junction to ~/prompts/home/claude/skills
+  ~/.claude/skills                junction to ~/pagmas-descendant/home/claude/skills
 ```
 
 ## Before you change anything
@@ -192,22 +199,22 @@ Files pagma writes
   ~/.config/pagma/ledger.jsonl    new: the record of everything in this plan
 
 Descendant: the hub repo all your skills and agents are managed from
-  ~/prompts                       new git repo, engine <version> at forge/engine/
+  ~/pagmas-descendant             new git repo, engine <version> at forge/engine/
   holds                           every version you write, and the manifest of what is live
   serves                          global skills for every session, or skills for one repo
 
 Links
-  ~/.claude/skills                to ~/prompts/home/claude/skills
-  ~/.claude/agents                to ~/prompts/home/claude/agents
-  ~/.claude/tools                 to ~/prompts/home/claude/tools
+  ~/.claude/skills                to ~/pagmas-descendant/home/claude/skills
+  ~/.claude/agents                to ~/pagmas-descendant/home/claude/agents
+  ~/.claude/tools                 to ~/pagmas-descendant/home/claude/tools
 
 When you say go ahead
   step 1     I install fzf, bun, just
   step 2     I write the env file and the two rc lines
-  step 3     I create ~/prompts, mount the engine, build, render
+  step 3     I create ~/pagmas-descendant, mount the engine, build, render
   step 4     I link the three directories and run the two checks
   stops      only if a step is refused or needs your hand
-  result     six tools, ~/prompts, /hello in a new session
+  result     six tools, ~/pagmas-descendant, /hello in a new session
   undo       /pagma-uninstall removes every item on the ledger
 ```
 
@@ -357,7 +364,7 @@ Decide which case you are in by looking at the current directory:
 
 | You see | Case | Do |
 |---|---|---|
-| `VERSION` and `scripts/render.ts` in the directory itself, origin `hefboom/pagma` | a clone of the engine repo: the bootstrap case | never mount the engine into itself. **Ask where the descendant should live.** Suggest `~/prompts`; offer an existing repo the person already keeps their shell or editor config in, which becomes the descendant in place. Create the directory if needed, then continue with the row that matches it, running every later command in that directory (`cd` or absolute paths; your session stays rooted in the clone). Record a `clone` line for the directory you are standing in. In step 5, add the cleanup line. |
+| `VERSION` and `scripts/render.ts` in the directory itself, origin `hefboom/pagma` | a clone of the engine repo: the bootstrap case | never mount the engine into itself. **Ask where the descendant should live.** Suggest `~/pagmas-descendant`; offer an existing repo the person already keeps their shell or editor config in, which becomes the descendant in place. Create the directory if needed, then continue with the row that matches it, running every later command in that directory (`cd` or absolute paths; your session stays rooted in the clone). Record a `clone` line for the directory you are standing in. In step 5, add the cleanup line. |
 | `forge/elections.json` and `forge/engine/VERSION` | an existing descendant (a clone of a template, or a second machine) | nothing here, go to step 3 |
 | `forge/engine/VERSION` but no `forge/elections.json` | engine mounted, not yet scaffolded | `bash forge/engine/scripts/init.sh`, go to step 4 |
 | neither, inside a git repo | a repo that should become a descendant | mount the engine (below), then `init.sh` |
@@ -366,10 +373,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.19 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.20 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.19`.
+Check: `cat forge/engine/VERSION` prints `0.1.20`.
 
 Now record the descendant's location: append `export FORGE_ROOT="<absolute path of the
 descendant>"` to `~/.config/pagma/env` (replace an existing `FORGE_ROOT` line), and export
@@ -397,11 +404,18 @@ symlink per directory connects them, three in all: `skills`, `agents`, `tools` (
 creates all three roots, empty or not). For each:
 
 - `~/.claude/<dir>` does not exist → `ln -s "$PWD/home/claude/<dir>" ~/.claude/<dir>`
+- it is a real directory and empty → `rmdir ~/.claude/<dir>`, which refuses a directory with content, then link as above
 - it is already a symlink → read its target, show the person, ask before repointing
-- it is a real directory with content → **stop and ask**. The person has hand-placed
-  skills there. Offer two paths: move them into the cellar (one `forge/skills/global/<name>/v1.0.0/` each, then elect), or leave the directory and link per skill. Do not delete or overwrite anything.
+- it is a real directory with content → **stop and ask**. Do not delete or overwrite anything. What to offer depends on the content:
+  - skills the person placed by hand: move them into the cellar (one `forge/skills/global/<name>/v1.0.0/` each, then elect), or leave the directory and link per skill
+  - only a `synced/` folder: the Claude app writes that one and keeps it current, so it is not the person's to move. Leave the directory and link per skill
 
-Check: `readlink ~/.claude/skills` prints a path ending in `home/claude/skills`.
+Linking per skill: one link for each directory under `home/claude/skills/`, placed at
+`~/.claude/skills/<name>`, each with its own `symlink` ledger line. Tell the person that a
+skill elected later needs its own link, made the same way.
+
+Check: `readlink ~/.claude/skills` prints a path ending in `home/claude/skills`, or per
+skill, `readlink ~/.claude/skills/hello` one ending in `home/claude/skills/hello`.
 
 Ledger: a `symlink` line for each link you created. If you repointed an existing link, add
 its old target as `replaced` (`--arg w "<old target>"`, `replaced:$w`), so uninstall can

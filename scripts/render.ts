@@ -12,6 +12,7 @@
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 
 // The descendant root: the repo whose forge/elections.json this render serves.
 // $FORGE_ROOT names it outright; otherwise it is the nearest ancestor of this script
@@ -20,7 +21,7 @@ import * as path from "node:path";
 // the output roots can be renamed without breaking discovery. The engine owns no paths.
 function repoRoot(): string {
   if (process.env.FORGE_ROOT) return path.resolve(process.env.FORGE_ROOT);
-  let dir = path.dirname(new URL(import.meta.url).pathname);
+  let dir = path.dirname(fileURLToPath(import.meta.url));
   while (true) {
     if (fs.existsSync(path.join(dir, "forge", "elections.json"))) return dir;
     const parent = path.dirname(dir);
@@ -178,7 +179,7 @@ function readManifest(): Manifest {
   }
   const manifest = JSON.parse(fs.readFileSync(MANIFEST, "utf8")) as Manifest;
   if (manifest.engine !== undefined) {
-    const have = fs.readFileSync(path.join(path.dirname(new URL(import.meta.url).pathname), "..", "VERSION"), "utf8").trim();
+    const have = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "VERSION"), "utf8").trim();
     const want = manifest.engine.replace(/^v/, "");
     if (have !== want) {
       console.error(`manifest pins engine v${want} but this engine is v${have} — pull the engine subtree to v${want}, or re-pin`);
