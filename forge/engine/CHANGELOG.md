@@ -3,6 +3,10 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.25
+- An explanation has a fixed layout: one block per piece, its name on a line and one to four dash lines under it, the last saying what stops without it. `install/explain.md` now holds the blocks in that layout, to be copied. v0.1.23 had asked for plain sentences, and the answer to "Explain first" came out as one run-on paragraph.
+- manifest: none.
+
 ## v0.1.24
 - `INSTALL.md` is a core and a router. Five situations moved to their own file under `install/`, read only when they apply: `windows.md`, `existing-folder.md`, `installers.md`, `explain.md`, `no-ledger.md`. The core went from 531 lines to 333. A pure move: every line is where it was or in one of the five, and eight lines were reworded to point at the new files.
 - manifest: none.

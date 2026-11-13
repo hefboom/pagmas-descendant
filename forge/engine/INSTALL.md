@@ -139,14 +139,14 @@ The values are an example; the labels and their order are fixed. A script that d
 match the baseline says so on its header line, with each difference on its own line under
 it. In the bootstrap row of step 2 the descendant line shows the suggested directory, and
 "Change the plan" below is where the person moves it: do not ask about it again later.
-An explanation is the opposite: plain sentences, no layout.
+An explanation has a fixed layout of its own, in `install/explain.md`.
 
 Where each piece goes is fixed too, for every question in this file:
 
 | Piece | Where it goes |
 |---|---|
 | the plan | ordinary message text, in one code block, the last thing you write before the question |
-| an explanation | ordinary message text, in plain sentences, the last thing you write before the question |
+| an explanation | ordinary message text, in the layout of `install/explain.md` (one block per piece: its name on a line, dash lines under it), the last thing you write before the question |
 | the question | your harness's question tool, if it has one: one line (`How do you want to proceed?`) and the choices, a few words each. Without such a tool, list the choices as text and wait |
 | an option's preview pane | never. Leave that field out of every option: it shows only while that option is highlighted, so text there is missed, and the other options show an empty pane |
 
@@ -160,7 +160,7 @@ the last:
 | Choice | What you do |
 |---|---|
 | **Go ahead** (recommended) | start step 1 |
-| **Explain first** | ask which piece they want explained: one tool, one row of the plan, or all of it. Answer from `install/explain.md`, in their terms and as briefly as it allows, then ask the four choices again. Do not repeat the plan; it is still above |
+| **Explain first** | ask which piece they want explained: one tool, one row of the plan, or all of it. Answer from `install/explain.md`, in its layout: one block per piece, never a paragraph. Then ask the four choices again. Do not repeat the plan; it is still above |
 | **Change the plan** | a different directory for the descendant, or leave the rc lines to them (below). Show the changed plan and the four choices again |
 | **Stop** | change nothing, and say that nothing was changed |
 
@@ -246,10 +246,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.24 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.25 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.24`.
+Check: `cat forge/engine/VERSION` prints `0.1.25`.
 
 Now record the descendant's location: append `export FORGE_ROOT="<absolute path of the
 descendant>"` to `~/.config/pagma/env` (replace an existing `FORGE_ROOT` line), and export

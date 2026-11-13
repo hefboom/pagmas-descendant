@@ -2,18 +2,87 @@
 
 Part of `INSTALL.md`: read this when the person picks "Explain first".
 
-Why each piece is there. Explain from this, not from memory:
+## The layout
 
-| Piece | What pagma uses it for | Without it |
-|---|---|---|
-| `git` | mounts the engine inside the descendant as a subtree pinned to a tag; an update pulls the next tag | no install, no update |
-| `bun` | runs the renderer, the TypeScript that turns the manifest into the skill and agent files the harness reads | nothing renders |
-| `just` | the command runner: every verb (`just forge render`, `status`, `elect-exact`) is a recipe in the engine's justfile, which needs 1.31 for its syntax | no verbs |
-| `jq` | reads and edits the manifest `forge/elections.json` inside the verbs, and writes the ledger | no election can change |
-| `fzf` | the pickers in the interactive verbs (`view`, `elect`, `move`, `retire`, `discover`). Each is the hand-operated twin of a verb the agent runs (`show`, `elect-exact`, `move-exact`, …): the same engine, a picker in place of arguments. pagma is built to be driven by agents, and fzf is for the person: doing a step by hand once shows them what their agent can do | the agent's `-exact` verbs still work; the person loses the way to see and try them. Recommended, and the setup check asks for it |
-| `python3` | one read-only report, `just forge edges` | only that report stops; the setup check notes it and carries on |
-| `~/.config/pagma/env` | bun and just install outside the default `PATH`; this file puts them on it and records where the descendant is (`FORGE_ROOT`) | new shells find neither the tools nor the descendant |
-| the rc lines | one line per startup file that reads the env file; two files because login shells and the shells tools start read different ones | the env file is never read |
-| the ledger | the record uninstall walks, so removal is exact and can end on "nothing remains" | uninstall falls back to inspecting the machine |
-| the descendant | the hub: the one repo every skill and agent is managed from. It holds every version the person writes, the manifest of which version is live, and the engine mounted inside. A skill elected there is global, or aimed at one repo | nowhere for their skills to live, nothing to elect from |
-| the three links | the harness reads `~/.claude/…`, the engine renders inside the descendant; the links join the two | the harness sees no rendered skills |
+An explanation is a list of blocks, one block per piece. The blocks below are already in
+that layout: copy the ones that were asked for.
+
+| Part of a block | Rule |
+|---|---|
+| the name | alone on its own line, in bold |
+| under it | two to four lines, each starting with a dash, one fact per line |
+| the last of those lines | what stops without the piece: `without it: …` |
+| between blocks | one blank line |
+
+| The person asks for | You write |
+|---|---|
+| one tool, or one file | that block |
+| one row of the plan | the block of every piece in that row |
+| all of it | every block below, in the order below |
+| something with no block here | a block in the same layout, from what you read during this install (for an installer script, the script itself and `install/installers.md`). Leave the `without it` line out when the thing is not a piece pagma needs. Say so when you do not know |
+
+Never a paragraph, never two pieces in one sentence, and no table: sentences in table
+cells wrap badly in a terminal. You may swap a word for the one the person used; do not
+merge lines or drop the `without it` line of a block below.
+
+The blocks are ordinary message text, the last thing you write before the question, and
+never an option's preview pane. Then ask the four choices again.
+
+## The blocks
+
+Explain from these, not from memory.
+
+**git**
+- mounts the engine inside your hub, pinned to a version tag
+- an update pulls the next tag
+- without it: no install and no update
+
+**bun**
+- runs the renderer: the program that turns the manifest into the skill and agent files your harness reads
+- without it: nothing renders
+
+**just**
+- the command runner: every pagma command (`just forge render`, `status`, `elect-exact`) is a recipe it runs
+- the engine's recipe file needs version 1.31 or newer
+- without it: no commands
+
+**jq**
+- reads and edits the manifest, `forge/elections.json`, inside those commands
+- writes the ledger
+- without it: you cannot change which version of a skill is live
+
+**fzf**
+- the pickers in the commands you run by hand (`view`, `elect`, `move`, `retire`, `discover`)
+- each is the by-hand twin of a command your agent runs with arguments (`show`, `elect-exact`, `move-exact`)
+- pagma is built to be driven by agents; fzf is for you, to see and try what your agent can do
+- without it: the agent's commands still work and you lose the pickers. Recommended, and the setup check asks for it
+
+**python3**
+- one read-only report, `just forge edges`
+- without it: only that report stops; the setup check notes it and carries on
+
+**`~/.config/pagma/env`**
+- records where your hub is (`FORGE_ROOT`)
+- puts bun and just on your `PATH`, since both install outside the default one (not on Windows, where winget does that)
+- without it: new shells find neither the tools nor the hub
+
+**the rc lines**
+- one line in each shell startup file, which reads the env file
+- two files, because login shells and the shells that tools start read different ones
+- without them: the env file is never read
+
+**the ledger**
+- the record of everything this install creates or changes
+- uninstall walks it, so removal is exact and can end on "nothing remains"
+- without it: uninstall has to inspect the machine instead
+
+**the descendant**
+- the hub: the one repo all your skills and agents are managed from
+- holds every version you write, the manifest of which version is live, and the engine mounted inside
+- a skill made live there is global, or aimed at one repo
+- without it: nowhere for your skills to live, and nothing to choose from
+
+**the three links**
+- your harness reads `~/.claude/…`; the engine renders inside the hub
+- the links join the two
+- without them: the harness sees no rendered skills
