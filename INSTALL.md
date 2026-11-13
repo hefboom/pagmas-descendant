@@ -29,7 +29,9 @@ jq -nc --arg p "<descendant path>" --argjson i false '{kind:"descendant",path:$p
 jq -nc --arg p "$HOME/.claude/skills" --arg t "<descendant path>/home/claude/skills" '{kind:"symlink",path:$p,target:$t}' >> "$L"
 ```
 
-Paths are absolute. A `dep` line carries the command that undoes it:
+Paths are absolute. A `line` or `file` entry for something a tool's own installer left
+behind also carries `by` with that tool's name (`--arg b bun`, `by:$b`) and is removed
+together with the tool. A `dep` line carries the command that undoes it:
 
 | Installed with | `via` | `remove` |
 |---|---|---|
@@ -48,16 +50,18 @@ inferred, not recorded:
 - `line`: each of `~/.profile`, `~/.bashrc`, `~/.zprofile`, `~/.zshrc` that carries the source line (`grep -xF`).
 - `descendant`: its path. Ask whether the directory was the person's before pagma (`in_place`, step 2); `true` if unsure.
 - `dep`: inspection cannot tell who installed a tool. Ask which of the six the person installed for pagma and record those, `via` read from where `command -v` finds the binary. No answer, no `dep` lines.
+- `line` with `by: bun`, only if bun got a `dep` line through its installer: the lines that installer leaves in a startup file (`grep -n '^# bun$\|BUN_INSTALL' ~/.bashrc ~/.bash_profile ~/.zshrc`).
 
 ## Before you change anything
 
 Look first and change nothing: which of the six tools in step 1 are missing (your
 before-list), which row of step 2 you are in, and whether `~/.claude/{skills,agents,tools}`
-exist. Then show the person the plan as one list:
+exist. If bun or just will come from an installer script, fetch and read it now (step 1).
+Then show the person the plan as one list:
 
 | What | Where |
 |---|---|
-| tools to install | the missing ones, and which of them the person will have to run themselves (step 1) |
+| tools to install | the missing ones; for each installer script, the four answers from reading it (step 1); and which of them the person may have to run themselves |
 | a shell file | `~/.config/pagma/env`, new |
 | one line that sources it | added to `~/.profile` and the top of `~/.bashrc` (`~/.zprofile` and `~/.zshrc` on macOS); show the line |
 | the ledger | `~/.config/pagma/ledger.jsonl`, the record of everything on this list |
@@ -117,12 +121,49 @@ manager:
 | Fedora | `sudo dnf install -y git jq fzf python3 just` then bun below; check the just version |
 | Windows | stop — use WSL2 and run this file inside it; native Windows is not supported |
 
-bun, when the package manager has no package for it:
-`curl -fsSL https://bun.sh/install | bash`. just, when the package manager's is missing or
-below 1.31: `curl -sSf https://just.systems/install.sh | bash -s -- --to ~/.local/bin`. If
-your harness refuses to run an installer fetched from the network, do not work around it:
-hand that one line to the person to run themselves and continue once the version check
-passes.
+bun (when the package manager has no package for it) and just (when the package manager's
+is missing or below 1.31) come from their projects' installer scripts. Never pipe one into
+a shell unread. Fetch it to a file while you are still looking, read all of it, and later
+run that same file. This is how an installer is run here, not a second attempt after a
+refusal. Note the directory's path; shell variables do not survive between your commands:
+
+```bash
+d=$(mktemp -d); echo "$d"
+curl -fsSL https://bun.sh/install -o "$d/bun-install.sh"
+curl -sSf https://just.systems/install.sh -o "$d/just-install.sh"
+```
+
+Answer four questions from each script itself, and put the answers in the plan:
+
+| Question | bun's script, when this was written | just's script, when this was written |
+|---|---|---|
+| What does it download, and from where? | one release zip from `github.com/oven-sh/bun` | one release archive from `github.com/casey/just`, after asking `api.github.com` for the newest tag |
+| Where does it write? | `~/.bun/bin/bun` | one binary in the `--to` directory |
+| Does it edit shell startup files? | yes: it appends `# bun` and two `export` lines to the first writable of `~/.bash_profile`, `~/.bashrc` (bash), or to `~/.zshrc` (zsh) | no |
+| Does it ask for root, or run what it downloaded? | no root; it runs the new `bun` once to place shell completions | neither |
+
+The two right-hand columns are a baseline, not the answer: report what you read. A
+different host, a `sudo`, a write outside the home directory, or code you cannot follow is
+a stop: do not run it, and show the person what you found. Reading the script tells you
+what the script does, not what is inside the binary it fetches. That trust rests on the
+project and its release host; say so if the person asks.
+
+Run each from the file you read. Take a marker and a copy of the startup files first, so
+whatever the installer leaves behind can go on the ledger:
+
+```bash
+touch "$d/marker"; for f in .profile .bash_profile .bashrc .zprofile .zshrc; do [ -f "$HOME/$f" ] && cp "$HOME/$f" "$d/before$f"; done
+bash "$d/bun-install.sh"
+bash "$d/just-install.sh" --to "$HOME/.local/bin"
+# lines an installer added to a startup file:
+for f in .profile .bash_profile .bashrc .zprofile .zshrc; do [ -f "$d/before$f" ] && diff "$d/before$f" "$HOME/$f" | sed -n 's/^> //p'; done
+# files it left outside its own directory:
+find "$HOME" -maxdepth 5 -type f -newer "$d/marker" -not -path "$HOME/.bun/*" -not -path "$HOME/.claude/*" -not -path "$HOME/.cache/*" -not -path "$HOME/Library/*"
+```
+
+If your harness refuses to run an installer, do not work around it: hand the person that
+same command, `bash <the file you read>`, together with your four answers, so they know
+what they are running. Continue once the version check passes.
 
 Both land outside the default `PATH`. pagma owns one shell file for that and for the
 descendant's location, sourced by one guarded line per rc file — the rustup pattern
@@ -142,7 +183,9 @@ that guard never reaches a tool's shell), or to `~/.zprofile` and `~/.zshrc` on 
 [ -f "$HOME/.config/pagma/env" ] && . "$HOME/.config/pagma/env"
 ```
 
-Source the file in your current shell too.
+Source the file in your current shell too. If your harness starts every command in a fresh
+shell, its picture of the startup files was taken before this file existed: begin each
+later command with `. "$HOME/.config/pagma/env";` until the session is restarted.
 
 Check, in a fresh shell rather than the current one:
 `bash -lc 'command -v bun just'` and `bash -c 'command -v bun just'` both print two paths.
@@ -152,7 +195,10 @@ Check: every one of the six names resolves with `command -v`, and `just --versio
 Ledger: one `dep` line for each name on your before-list that now resolves, whoever typed
 the command (a line you handed to the person counts). Tools that were already there get
 none. Then a `file` line for `~/.config/pagma/env` if you created it, and a `line` line for
-each rc file you added the source line to.
+each rc file you added the source line to. From the two listings after the installers: each
+non-blank line one of them added to a startup file is a `line` entry with `by`, and a file
+that is plainly its own outside its directory (a completions file) is a `file` entry with
+`by`. Skip what the ledger already covers.
 
 ## 2. The descendant
 
@@ -169,10 +215,10 @@ Decide which case you are in by looking at the current directory:
 Mount the engine as a git subtree at a pinned tag, never a clone or a fork:
 
 ```bash
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.13 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.14 --squash
 ```
 
-Check: `cat forge/engine/VERSION` prints `0.1.13`.
+Check: `cat forge/engine/VERSION` prints `0.1.14`.
 
 Now record the descendant's location: append `export FORGE_ROOT="<absolute path of the
 descendant>"` to `~/.config/pagma/env` (replace an existing `FORGE_ROOT` line), and export

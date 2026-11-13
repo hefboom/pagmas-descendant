@@ -3,6 +3,12 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.14
+- Installer scripts are read before they run. `INSTALL.md` fetches the bun and just installers to a file, answers four questions from the script itself (what it downloads and from where, where it writes, whether it edits startup files, whether it wants root), puts the answers in the plan, and runs that same file. Nothing is piped into a shell unread.
+- What an installer leaves behind goes on the ledger with `by: <tool>` and is removed with that tool. Found live: the bun installer appended three lines to `~/.bashrc` that uninstall would have left.
+- A harness that starts each command in a fresh shell sources `~/.config/pagma/env` at the start of each later command. Found live: `init.sh` could not see bun in the session that had just installed it.
+- manifest: none. Machine: if the ledger has a `dep` line for bun with `via: installer`, add `line` entries with `by: bun` for the lines its installer left in the startup files (`grep -n '^# bun$\|BUN_INSTALL' ~/.bashrc ~/.bash_profile ~/.zshrc`).
+
 ## v0.1.13
 - The plan question is a fixed menu that loops: go ahead, explain first, change the plan, stop. "Explain first" answers from a table in `INSTALL.md` that says what each tool and each piece is for and what stops without it, then returns to the same four choices. Before this the agent composed its own options, so no two installs asked the same thing.
 

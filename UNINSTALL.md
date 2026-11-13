@@ -43,8 +43,9 @@ the rendered skills and agents.
 
 ## 3. The shell file
 
-The `file` entry (`~/.config/pagma/env`) and each `line` entry (the guarded line that
-sources it). Check each `line` entry is still there verbatim:
+The `file` entry for `~/.config/pagma/env` and each `line` entry without a `by` field: the
+guarded line that sources it. Entries that carry `by` were left by a tool's own installer
+and wait for stage 4. Check each `line` entry is still there verbatim:
 `grep -cxF -- "<text>" "<file>"` prints 1. List them, ask, then delete the env file and
 remove exactly that line from each rc file, nothing else in them. Write through the file
 rather than replacing it, since rc files are often symlinks into a config repo:
@@ -82,6 +83,8 @@ one at a time:
    person's yes is the confirmation, so a `-y` flag is fine after it and never before. If
    the command needs `sudo` you do not have, or your harness refuses it, hand the line to
    the person and continue once `command -v <name>` no longer resolves.
+5. Then remove the entries that carry `by: <name>`, which its installer left behind: lines
+   with the stage 3 snippet, files with `rm`. On a no, they stay with the tool.
 
 ## 5. The bootstrap clone
 
@@ -123,7 +126,8 @@ Check every entry once more against its final state: links absent, env file abse
 lines at count 0, removed tools no longer resolving, removed directories absent.
 
 The ledger ends holding exactly what pagma still has on the machine. A dependency or a
-descendant the person chose to keep is theirs from now on and comes off the list. If
+descendant the person chose to keep is theirs from now on and comes off the list, a tool
+together with its `by` entries. If
 that leaves entries (changed, or the person stopped partway), rewrite the ledger to those
 lines and say that a later uninstall finishes the job.
 
