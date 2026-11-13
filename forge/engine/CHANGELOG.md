@@ -3,6 +3,10 @@
 One entry per tag. A `manifest:` line is a change a descendant's `forge/elections.json`
 needs by hand when crossing that version — `UPDATE.md` applies them in order.
 
+## v0.1.8
+- `~/.config/pagma/env` owns PATH and `FORGE_ROOT`, sourced by one guarded line per rc file (rustup pattern). `INSTALL.md` writes it, `UNINSTALL.md` removes it.
+- manifest: none. Shell: migrate the bare `export PATH=…` lines from `~/.profile`/`~/.bashrc` into `~/.config/pagma/env` and replace them with the source line (`INSTALL.md` § 1).
+
 ## v0.1.7
 - `INSTALL.md`: PATH for bun and just goes in `~/.profile` and the top of `~/.bashrc`, checked from a fresh non-interactive shell. Second live run: `.bashrc`'s interactive guard hid bun from the next agent.
 
