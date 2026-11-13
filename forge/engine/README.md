@@ -87,7 +87,7 @@ Prerequisites: `bun`, `just`, `jq`, `fzf`, `python3`, `git` (per-OS commands in 
 
 ```bash
 mkdir pagmas-descendant && cd pagmas-descendant && git init && git commit --allow-empty -m init
-git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.26 --squash
+git subtree add --prefix forge/engine https://github.com/hefboom/pagma.git v0.1.27 --squash
 bash forge/engine/scripts/init.sh          # the rare book: manifest, cellar, justfile, first render
 just forge status                          # one row per election, LIVE column says ok
 ```
